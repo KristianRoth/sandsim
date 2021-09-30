@@ -1,11 +1,13 @@
 let texcoordShader: p5.Shader;
-const gridSize = 50;
+const gridSize = 10;
 const w = 1000
 const h = 1000
 const gw = w/gridSize
 const gh = h/gridSize
 const elementCount = 8
 const heightMultiplier = Math.ceil(elementCount/3)
+
+
 let elementTexture: p5.Image
 
 const showTexture = false
@@ -31,7 +33,7 @@ const setup = () => {
 }
 
 function draw() {
-  
+  mouse()
   gs = update(gs)
   makeTexture(gs, elementTexture)
 
@@ -40,6 +42,7 @@ function draw() {
     image(elementTexture, 0, 0, 100, 200)
     return
   }
+  
   shader(texcoordShader);
   texcoordShader.setUniform('size', [gw, gh*heightMultiplier])
   texcoordShader.setUniform('heightMultiplier', heightMultiplier)
@@ -64,19 +67,26 @@ const makeTexture = (gs: GameState, tex: p5.Image) => {
       // console.log("i, j:", i, j)
       // console.log("gh, gw:", gh, gw)
       // console.log(gs)
-      tex.pixels[idx] = gs.elements[i][j][0]
-      tex.pixels[idx + 1] = gs.elements[i][j][1]
-      tex.pixels[idx + 2] = gs.elements[i][j][2]
+      tex.pixels[idx] = gs.elements[j][i][0]
+      tex.pixels[idx + 1] = gs.elements[j][i][1]
+      tex.pixels[idx + 2] = gs.elements[j][i][2]
       tex.pixels[idx + 3] = 255 
-      tex.pixels[idx + m] = gs.elements[i][j][3]
-      tex.pixels[idx + m + 1] = gs.elements[i][j][4]
-      tex.pixels[idx + m + 2] = gs.elements[i][j][5]
+      tex.pixels[idx + m] = gs.elements[j][i][3]
+      tex.pixels[idx + m + 1] = gs.elements[j][i][4]
+      tex.pixels[idx + m + 2] = gs.elements[j][i][5]
       tex.pixels[idx + m + 3] = 255
-      tex.pixels[idx + 2*m] = gs.elements[i][j][6]
-      tex.pixels[idx + 2*m + 1] = gs.elements[i][j][7]
+      tex.pixels[idx + 2*m] = gs.elements[j][i][6]
+      tex.pixels[idx + 2*m + 1] = gs.elements[j][i][7]
       tex.pixels[idx + 2*m + 2] = 255
       tex.pixels[idx + 2*m + 3] = 255
     }
   }
   tex.updatePixels()
+}
+
+const mouse = () => {
+  if (mouseIsPressed) {
+    let [ i, j ] = [mouseX, mouseY].map((a) => drag(floor(a/gridSize), 0, gw - 1))
+    gs.elements[i][j][0] = 255
+  }
 }
