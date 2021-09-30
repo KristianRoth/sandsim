@@ -64,6 +64,7 @@ var gw = w / gridSize;
 var gh = h / gridSize;
 var elementCount = 8;
 var heightMultiplier = Math.ceil(elementCount / 3);
+var loaded = function () { return true; };
 var elementTexture;
 var showTexture = false;
 var gs;

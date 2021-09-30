@@ -7,6 +7,7 @@ const gh = h/gridSize
 const elementCount = 8
 const heightMultiplier = Math.ceil(elementCount/3)
 
+const loaded = () => true
 
 let elementTexture: p5.Image
 
