@@ -4,6 +4,9 @@ var elementColors = [
     0, 0, 1, 1,
     1, 0, 1, 1,
     1, 1, 0, 1,
+    1, 1, 1, 1,
+    1, 0.5, 0, 1,
+    1, 0, 0.5, 1,
 ];
 var initialize = function () {
     var elements = [];
@@ -69,8 +72,9 @@ var ioState = {
     brush: {
         currentElement: 0,
         brushSize: 10,
-        brushType: BrushType.CIRCLE
-    }
+        brushType: BrushType.CIRCLE,
+    },
+    debugTexture: false,
 };
 var mouse = function () {
     if (0 <= mouseX && mouseX <= width && 0 <= mouseY && mouseY <= height) {
@@ -103,7 +107,6 @@ var setArea = function (x, y, radius, elementId, fn) {
 var initializeUi = function () {
     ioState.brush.brushSize = min(gw, gh) / 10;
     var controlsDiv = document.getElementById('controls');
-    console.log(controlsDiv);
     var brushSizeSlider = document.createElement('input');
     brushSizeSlider.type = 'range';
     brushSizeSlider.defaultValue = min(gw, gh) / 10 + '';
@@ -112,19 +115,34 @@ var initializeUi = function () {
     brushSizeSlider.onchange = function () {
         ioState.brush.brushSize = int(brushSizeSlider.value);
     };
+    controlsDiv.append(getLabelElement('Brush size:'));
     controlsDiv.append(brushSizeSlider);
     var currentElmenetSelector = document.createElement('select');
     currentElmenetSelector.innerHTML = gs.elements[0][0].reduce(function (acc, e, i) { return acc + ("<option value=\"" + i + "\">" + i + "</option>"); }, "");
     currentElmenetSelector.onchange = function () {
         ioState.brush.currentElement = int(currentElmenetSelector.value);
     };
+    controlsDiv.append(getLabelElement('Current element:'));
     controlsDiv.append(currentElmenetSelector);
     var brushTypeSelector = document.createElement('select');
     brushTypeSelector.innerHTML = Object.keys(BrushType).reduce(function (acc, e, i) { return "<option value=\"" + e + "\">" + e + "</option>" + acc; }, "");
     brushTypeSelector.onchange = function () {
         ioState.brush.brushType = BrushType[brushTypeSelector.options[brushTypeSelector.selectedIndex].value];
     };
+    controlsDiv.append(getLabelElement('Brush type:'));
     controlsDiv.append(brushTypeSelector);
+    var debugTextureCheckbox = document.createElement('input');
+    debugTextureCheckbox.type = 'checkbox';
+    debugTextureCheckbox.onchange = function () {
+        ioState.debugTexture = debugTextureCheckbox.checked;
+    };
+    controlsDiv.append(getLabelElement('Enable texture debug:'));
+    controlsDiv.append(debugTextureCheckbox);
+};
+var getLabelElement = function (text) {
+    var label = document.createElement('label');
+    label.innerHTML = text;
+    return label;
 };
 var texcoordShader;
 var gridSize = 10;
@@ -167,6 +185,7 @@ function draw() {
     texcoordShader.setUniform('heightMultiplier', heightMultiplier);
     texcoordShader.setUniform('elementColors', gs.elementColors);
     texcoordShader.setUniform('elementTex', elementTexture);
+    texcoordShader.setUniform('showTest', ioState.debugTexture);
     if (frameCount % 100 === 0) {
         console.log(frameRate());
     }

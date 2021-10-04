@@ -50,6 +50,7 @@ function draw() {
   texcoordShader.setUniform('heightMultiplier', heightMultiplier)
   texcoordShader.setUniform('elementColors', gs.elementColors)
   texcoordShader.setUniform('elementTex', elementTexture)
+  texcoordShader.setUniform('showTest', ioState.debugTexture)
   
   if(frameCount%100 === 0) {
     console.log(frameRate())

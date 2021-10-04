@@ -9,6 +9,7 @@ uniform vec2 size;
 uniform float heightMultiplier;
 uniform sampler2D elementTex;
 uniform vec4 elementColors[elementCount];
+uniform bool showTest;
 
 float map(float value, float min1, float max1, float min2, float max2) {
   return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
@@ -42,6 +43,8 @@ void main() {
   vec4 elementAmount2 = texture2D(elementTex, sample(coord, 1.0));
   vec4 elementAmount3 = texture2D(elementTex, sample(coord, 2.0));
 
+  float totalElementAmount = dot(elementAmount1.rgb, vec3(1.0)) + dot(elementAmount2.rgb, vec3(1.0)) + dot(elementAmount3.rgb, vec3(1.0));
+
   vec4 finalColor = vec4(0, 0, 0, 1.0);
   finalColor = myBlend( elementColors[0] * elementAmount1.r, finalColor);
   finalColor = myBlend( elementColors[1] * elementAmount1.g, finalColor);
@@ -51,6 +54,9 @@ void main() {
   finalColor = myBlend( elementColors[5] * elementAmount2.b, finalColor);
   finalColor = myBlend( elementColors[6] * elementAmount3.r, finalColor);
   finalColor = myBlend( elementColors[7] * elementAmount3.g, finalColor);
-
-  gl_FragColor = elementAmount1;
+  if (showTest) {
+    gl_FragColor = texture2D(elementTex, tsample(coord, 0.0));
+  } else {
+    gl_FragColor = finalColor;
+  }
 }

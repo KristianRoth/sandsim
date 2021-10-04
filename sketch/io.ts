@@ -3,6 +3,7 @@
 type IOState = {
   lastMouse: MouseState,
   brush: BrushState,
+  debugTexture: boolean,
 }
 
 type MouseState = {
@@ -29,8 +30,9 @@ let ioState: IOState = {
   brush: {
     currentElement: 0,
     brushSize: 10,
-    brushType: BrushType.CIRCLE
-  }
+    brushType: BrushType.CIRCLE,
+  },
+  debugTexture: false,
 }
 
 const mouse = () => {
@@ -67,7 +69,6 @@ const initializeUi = () => {
   ioState.brush.brushSize = min(gw, gh)/10
 
   let controlsDiv = document.getElementById('controls')
-  console.log(controlsDiv)
 
   let brushSizeSlider = document.createElement('input')
   brushSizeSlider.type = 'range'
@@ -77,6 +78,7 @@ const initializeUi = () => {
   brushSizeSlider.onchange = () => {
     ioState.brush.brushSize = int(brushSizeSlider.value)
   }
+  controlsDiv.append(getLabelElement('Brush size:'))
   controlsDiv.append(brushSizeSlider)
 
   let currentElmenetSelector = document.createElement('select')
@@ -84,6 +86,7 @@ const initializeUi = () => {
   currentElmenetSelector.onchange = () => { 
     ioState.brush.currentElement = int(currentElmenetSelector.value)
   }
+  controlsDiv.append(getLabelElement('Current element:'))
   controlsDiv.append(currentElmenetSelector)
 
   let brushTypeSelector = document.createElement('select')
@@ -91,5 +94,20 @@ const initializeUi = () => {
   brushTypeSelector.onchange = () => {
     ioState.brush.brushType = BrushType[ brushTypeSelector.options[brushTypeSelector.selectedIndex].value as keyof typeof BrushType ]
   }
+  controlsDiv.append(getLabelElement('Brush type:'))
   controlsDiv.append(brushTypeSelector)
+
+  let debugTextureCheckbox = document.createElement('input')
+  debugTextureCheckbox.type = 'checkbox'
+  debugTextureCheckbox.onchange = () => {
+    ioState.debugTexture = debugTextureCheckbox.checked
+  }
+  controlsDiv.append(getLabelElement('Enable texture debug:'))
+  controlsDiv.append(debugTextureCheckbox)
+}
+
+let getLabelElement = (text: string) => {
+  let label = document.createElement('label')
+  label.innerHTML = text
+  return label
 }
