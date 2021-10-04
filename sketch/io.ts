@@ -34,11 +34,12 @@ let ioState: IOState = {
 }
 
 const mouse = () => {
-  if (mouseIsPressed) {
-    let [ i, j ] = [mouseX, mouseY].map((a) => drag(floor(a/gridSize), 0, gw - 1))
-    if (ioState.brush.brushType === BrushType.CIRCLE) { setEllipse(i, j, ioState.brush.brushSize, ioState.brush.currentElement )}
-    if (ioState.brush.brushType === BrushType.SQUARE) { setSquare(i, j, ioState.brush.brushSize, ioState.brush.currentElement )}
-
+  if ( 0 <= mouseX && mouseX <= width && 0 <= mouseY && mouseY <= height) {
+    if (mouseIsPressed) {
+      let [ i, j ] = [mouseX, mouseY].map((a) => drag(floor(a/gridSize), 0, gw - 1))
+      if (ioState.brush.brushType === BrushType.CIRCLE) { setEllipse(i, j, ioState.brush.brushSize, ioState.brush.currentElement )}
+      if (ioState.brush.brushType === BrushType.SQUARE) { setSquare(i, j, ioState.brush.brushSize, ioState.brush.currentElement )}
+    }
   }
 }
   
