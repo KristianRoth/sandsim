@@ -56,6 +56,74 @@ var balance = function (src, dest, balance) {
         return { first: av, second: sum - av };
     });
 };
+var BrushType;
+(function (BrushType) {
+    BrushType["SQUARE"] = "SQUARE";
+    BrushType["CIRCLE"] = "CIRCLE";
+})(BrushType || (BrushType = {}));
+var ioState = {
+    lastMouse: {
+        x: 0,
+        y: 0
+    },
+    brush: {
+        currentElement: 0,
+        brushSize: 10,
+        brushType: BrushType.CIRCLE
+    }
+};
+var mouse = function () {
+    if (mouseIsPressed) {
+        var _a = [mouseX, mouseY].map(function (a) { return drag(floor(a / gridSize), 0, gw - 1); }), i = _a[0], j = _a[1];
+        if (ioState.brush.brushType === BrushType.CIRCLE) {
+            setEllipse(i, j, ioState.brush.brushSize, ioState.brush.currentElement);
+        }
+        if (ioState.brush.brushType === BrushType.SQUARE) {
+            setSquare(i, j, ioState.brush.brushSize, ioState.brush.currentElement);
+        }
+    }
+};
+var setEllipse = function (x, y, radius, elementId) {
+    setArea(x, y, radius, elementId, function (x, y, x2, y2, radius) { return Math.pow((x2 - x), 2) + Math.pow((y2 - y), 2) <= Math.pow((radius / 2), 2); });
+};
+var setSquare = function (x, y, radius, elementId) {
+    setArea(x, y, radius, elementId, function (x, y, x2, y2, radius) { return abs(x2 - x) <= radius / 2 && abs(y2 - y) <= radius / 2; });
+};
+var setArea = function (x, y, radius, elementId, fn) {
+    for (var i = 0; i < gh; i++) {
+        for (var j = 0; j < gw; j++) {
+            if (fn(i, j, x, y, radius)) {
+                gs.elements[i][j][elementId] = 255;
+            }
+        }
+    }
+};
+var initializeUi = function () {
+    ioState.brush.brushSize = min(gw, gh) / 10;
+    var controlsDiv = document.getElementById('controls');
+    console.log(controlsDiv);
+    var brushSizeSlider = document.createElement('input');
+    brushSizeSlider.type = 'range';
+    brushSizeSlider.defaultValue = min(gw, gh) / 10 + '';
+    brushSizeSlider.min = '1';
+    brushSizeSlider.max = min(gw, gh) / 2 + '';
+    brushSizeSlider.onchange = function () {
+        ioState.brush.brushSize = int(brushSizeSlider.value);
+    };
+    controlsDiv.append(brushSizeSlider);
+    var currentElmenetSelector = document.createElement('select');
+    currentElmenetSelector.innerHTML = gs.elements[0][0].reduce(function (acc, e, i) { return acc + ("<option value=\"" + i + "\">" + i + "</option>"); }, "");
+    currentElmenetSelector.onchange = function () {
+        ioState.brush.currentElement = int(currentElmenetSelector.value);
+    };
+    controlsDiv.append(currentElmenetSelector);
+    var brushTypeSelector = document.createElement('select');
+    brushTypeSelector.innerHTML = Object.keys(BrushType).reduce(function (acc, e, i) { return "<option value=\"" + e + "\">" + e + "</option>" + acc; }, "");
+    brushTypeSelector.onchange = function () {
+        ioState.brush.brushType = BrushType[brushTypeSelector.options[brushTypeSelector.selectedIndex].value];
+    };
+    controlsDiv.append(brushTypeSelector);
+};
 var texcoordShader;
 var gridSize = 10;
 var w = 1000;
@@ -73,6 +141,7 @@ var preload = function () {
 };
 var setup = function () {
     gs = initialize();
+    initializeUi();
     elementTexture = createImage(gw, gh * heightMultiplier);
     makeTexture(gs, elementTexture);
     elementTexture.loadPixels();
@@ -83,8 +152,8 @@ var setup = function () {
     console.log(gs);
 };
 function draw() {
-    mouse();
     gs = update(gs);
+    mouse();
     makeTexture(gs, elementTexture);
     if (showTexture) {
         background(frameCount % 2 === 0 ? 255 : 0);
@@ -122,12 +191,6 @@ var makeTexture = function (gs, tex) {
         }
     }
     tex.updatePixels();
-};
-var mouse = function () {
-    if (mouseIsPressed) {
-        var _a = [mouseX, mouseY].map(function (a) { return drag(floor(a / gridSize), 0, gw - 1); }), i = _a[0], j = _a[1];
-        gs.elements[i][j][0] = 255;
-    }
 };
 var map2 = function (arr1, arr2, callBack) {
     var ret1 = [];

@@ -22,6 +22,7 @@ const preload = () => {
 
 const setup = () => {
   gs = initialize()
+  initializeUi()
   elementTexture = createImage(gw, gh * heightMultiplier)
   makeTexture(gs, elementTexture)
   elementTexture.loadPixels()
@@ -34,8 +35,8 @@ const setup = () => {
 }
 
 function draw() {
-  mouse()
   gs = update(gs)
+  mouse()
   makeTexture(gs, elementTexture)
 
   if (showTexture) {
@@ -83,11 +84,4 @@ const makeTexture = (gs: GameState, tex: p5.Image) => {
     }
   }
   tex.updatePixels()
-}
-
-const mouse = () => {
-  if (mouseIsPressed) {
-    let [ i, j ] = [mouseX, mouseY].map((a) => drag(floor(a/gridSize), 0, gw - 1))
-    gs.elements[i][j][0] = 255
-  }
 }
