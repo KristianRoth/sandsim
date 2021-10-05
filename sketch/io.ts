@@ -73,6 +73,7 @@ const setArea = (x: number, y: number, radius: number, elementId: number, elemen
   for (let i = 0; i < gh; i++) {
     for (let j = 0; j < gw; j++) {
       if (fn(i, j, x, y, radius)) {
+        // gs.elements[i][j] = [0, 0, 0, 0, 0, 0, 0, 0]
         gs.elements[i][j][elementId] = elementAmount
       }
     }

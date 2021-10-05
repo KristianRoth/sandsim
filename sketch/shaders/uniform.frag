@@ -43,20 +43,35 @@ void main() {
   vec4 elementAmount2 = texture2D(elementTex, sample(coord, 1.0));
   vec4 elementAmount3 = texture2D(elementTex, sample(coord, 2.0));
 
-  float totalElementAmount = dot(elementAmount1.rgb, vec3(1.0)) + dot(elementAmount2.rgb, vec3(1.0)) + dot(elementAmount3.rgb, vec3(1.0));
+  float totalElementAmount = dot(elementAmount1.rgb, vec3(1.0)) + dot(elementAmount2.rgb, vec3(1.0)) + dot(elementAmount3.rg, vec2(1.0));
 
-  vec4 finalColor = vec4(0, 0, 0, 1.0);
-  finalColor = myBlend( elementColors[0] * elementAmount1.r, finalColor);
-  finalColor = myBlend( elementColors[1] * elementAmount1.g, finalColor);
-  finalColor = myBlend( elementColors[2] * elementAmount1.b, finalColor);
-  finalColor = myBlend( elementColors[3] * elementAmount2.r, finalColor);
-  finalColor = myBlend( elementColors[4] * elementAmount2.g, finalColor);
-  finalColor = myBlend( elementColors[5] * elementAmount2.b, finalColor);
-  finalColor = myBlend( elementColors[6] * elementAmount3.r, finalColor);
-  finalColor = myBlend( elementColors[7] * elementAmount3.g, finalColor);
+  // vec4 finalColor = vec4(0, 0, 0, 1.0);
+  // finalColor = myBlend( elementColors[0] * elementAmount1.r, finalColor);
+  // finalColor = myBlend( elementColors[1] * elementAmount1.g, finalColor);
+  // finalColor = myBlend( elementColors[2] * elementAmount1.b, finalColor);
+  // finalColor = myBlend( elementColors[3] * elementAmount2.r, finalColor);
+  // finalColor = myBlend( elementColors[4] * elementAmount2.g, finalColor);
+  // finalColor = myBlend( elementColors[5] * elementAmount2.b, finalColor);
+  // finalColor = myBlend( elementColors[6] * elementAmount3.r, finalColor);
+  // finalColor = myBlend( elementColors[7] * elementAmount3.g, finalColor);
+
+  vec3 finalColor = vec3(0);
+  finalColor += elementColors[0].rgb * (elementAmount1.r / totalElementAmount);
+  finalColor += elementColors[1].rgb * (elementAmount1.g / totalElementAmount);
+  finalColor += elementColors[2].rgb * (elementAmount1.b / totalElementAmount);
+  finalColor += elementColors[3].rgb * (elementAmount2.r / totalElementAmount);
+  finalColor += elementColors[4].rgb * (elementAmount2.g / totalElementAmount);
+  finalColor += elementColors[5].rgb * (elementAmount2.b / totalElementAmount);
+  finalColor += elementColors[6].rgb * (elementAmount3.r / totalElementAmount);
+  finalColor += elementColors[7].rgb * (elementAmount3.g / totalElementAmount);
+
+  vec4 finalColorWithAlpha = vec4(finalColor, min(totalElementAmount, 1.0));
+  vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
+  vec4 final = myBlend(finalColorWithAlpha, black);
+
   if (showTest) {
     gl_FragColor = texture2D(elementTex, tsample(coord, 0.0));
   } else {
-    gl_FragColor = finalColor;
+    gl_FragColor = final;
   }
 }

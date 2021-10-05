@@ -1,4 +1,4 @@
-var elementColors = [
+var elementColors1 = [
     1, 0, 0, 1,
     0, 1, 0, 1,
     0, 0, 1, 1,
@@ -8,6 +8,18 @@ var elementColors = [
     1, 0.5, 0, 1,
     1, 0, 0.5, 1,
 ];
+var elementColors = function () {
+    return [
+        random(1), random(1), random(1), 1,
+        random(1), random(1), random(1), 1,
+        random(1), random(1), random(1), 1,
+        random(1), random(1), random(1), 1,
+        random(1), random(1), random(1), 1,
+        random(1), random(1), random(1), 1,
+        random(1), random(1), random(1), 1,
+        random(1), random(1), random(1), 1,
+    ];
+};
 var initialize = function () {
     var elements = [];
     for (var i = 0; i < gw; i++) {
@@ -28,7 +40,7 @@ var initialize = function () {
     }
     gs = {
         elements: elements,
-        elementColors: elementColors
+        elementColors: elementColors1
     };
     return gs;
 };
