@@ -76,6 +76,7 @@ var ioState = {
     brush: {
         currentElement: 0,
         brushSize: 10,
+        elementAmount: 255,
         brushType: BrushType.CIRCLE,
     },
     debugTexture: false,
@@ -88,26 +89,26 @@ var doIO = function () {
         if (mouseIsPressed) {
             if (ioState.brush.brushType === BrushType.CIRCLE) {
                 plotLine(ioState.mouse.x, ioState.mouse.y, ioState.lastMouse.x, ioState.lastMouse.y)
-                    .forEach(function (point) { return setEllipse(point.x, point.y, ioState.brush.brushSize, ioState.brush.currentElement); });
+                    .forEach(function (point) { return setEllipse(point.x, point.y, ioState.brush.brushSize, ioState.brush.currentElement, ioState.brush.elementAmount); });
             }
             if (ioState.brush.brushType === BrushType.SQUARE) {
                 plotLine(ioState.mouse.x, ioState.mouse.y, ioState.lastMouse.x, ioState.lastMouse.y)
-                    .forEach(function (point) { return setSquare(point.x, point.y, ioState.brush.brushSize, ioState.brush.currentElement); });
+                    .forEach(function (point) { return setSquare(point.x, point.y, ioState.brush.brushSize, ioState.brush.currentElement, ioState.brush.elementAmount); });
             }
         }
     }
 };
-var setEllipse = function (x, y, radius, elementId) {
-    setArea(x, y, radius, elementId, function (x, y, x2, y2, radius) { return Math.pow((x2 - x), 2) + Math.pow((y2 - y), 2) <= Math.pow((radius / 2), 2); });
+var setEllipse = function (x, y, radius, elementId, elementAmount) {
+    setArea(x, y, radius, elementId, elementAmount, function (x, y, x2, y2, radius) { return Math.pow((x2 - x), 2) + Math.pow((y2 - y), 2) <= Math.pow((radius / 2), 2); });
 };
-var setSquare = function (x, y, radius, elementId) {
-    setArea(x, y, radius, elementId, function (x, y, x2, y2, radius) { return abs(x2 - x) <= radius / 2 && abs(y2 - y) <= radius / 2; });
+var setSquare = function (x, y, radius, elementId, elementAmount) {
+    setArea(x, y, radius, elementId, elementAmount, function (x, y, x2, y2, radius) { return abs(x2 - x) <= radius / 2 && abs(y2 - y) <= radius / 2; });
 };
-var setArea = function (x, y, radius, elementId, fn) {
+var setArea = function (x, y, radius, elementId, elementAmount, fn) {
     for (var i = 0; i < gh; i++) {
         for (var j = 0; j < gw; j++) {
             if (fn(i, j, x, y, radius)) {
-                gs.elements[i][j][elementId] = 255;
+                gs.elements[i][j][elementId] = elementAmount;
             }
         }
     }
@@ -123,7 +124,7 @@ var initializeUi = function () {
     brushSizeSlider.max = min(gw, gh) / 2 + '';
     brushSizeSlider.onchange = function () {
         ioState.brush.brushSize = int(brushSizeSlider.value);
-        brushSizeLegend.innerHTML = "Brush size: " + int(brushSizeSlider.value);
+        brushSizeLegend.innerHTML = 'Brush size: ' + int(brushSizeSlider.value);
     };
     controlsDiv.append(brushSizeLegend);
     controlsDiv.append(brushSizeSlider);
@@ -134,6 +135,19 @@ var initializeUi = function () {
     };
     controlsDiv.append(getLabelElement('Current element:'));
     controlsDiv.append(currentElmenetSelector);
+    var elementAmountSlider = document.createElement('input');
+    var elementAmountLegend = getLabelElement('Element amount: ' + ioState.brush.elementAmount);
+    elementAmountSlider.type = 'range';
+    elementAmountSlider.defaultValue = '255';
+    elementAmountSlider.min = '0';
+    elementAmountSlider.max = '255';
+    elementAmountSlider.step = '1';
+    elementAmountSlider.onchange = function () {
+        ioState.brush.elementAmount = int(elementAmountSlider.value);
+        elementAmountLegend.innerHTML = 'Element amount: ' + int(elementAmountSlider.value);
+    };
+    controlsDiv.append(elementAmountLegend);
+    controlsDiv.append(elementAmountSlider);
     var brushTypeSelector = document.createElement('select');
     brushTypeSelector.innerHTML = Object.keys(BrushType).reduce(function (acc, e, i) { return "<option value=\"" + e + "\">" + e + "</option>" + acc; }, "");
     brushTypeSelector.onchange = function () {
