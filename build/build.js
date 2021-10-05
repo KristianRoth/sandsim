@@ -65,6 +65,10 @@ var BrushType;
     BrushType["CIRCLE"] = "CIRCLE";
 })(BrushType || (BrushType = {}));
 var ioState = {
+    mouse: {
+        x: 0,
+        y: 0,
+    },
     lastMouse: {
         x: 0,
         y: 0
@@ -76,15 +80,19 @@ var ioState = {
     },
     debugTexture: false,
 };
-var mouse = function () {
+var doIO = function () {
+    ioState.lastMouse = ioState.mouse;
+    var _a = [mouseX, mouseY].map(function (a) { return drag(floor(a / gridSize), 0, gw - 1); }), x = _a[0], y = _a[1];
+    ioState.mouse = { x: x, y: y };
     if (0 <= mouseX && mouseX <= width && 0 <= mouseY && mouseY <= height) {
         if (mouseIsPressed) {
-            var _a = [mouseX, mouseY].map(function (a) { return drag(floor(a / gridSize), 0, gw - 1); }), i = _a[0], j = _a[1];
             if (ioState.brush.brushType === BrushType.CIRCLE) {
-                setEllipse(i, j, ioState.brush.brushSize, ioState.brush.currentElement);
+                plotLine(ioState.mouse.x, ioState.mouse.y, ioState.lastMouse.x, ioState.lastMouse.y)
+                    .forEach(function (point) { return setEllipse(point.x, point.y, ioState.brush.brushSize, ioState.brush.currentElement); });
             }
             if (ioState.brush.brushType === BrushType.SQUARE) {
-                setSquare(i, j, ioState.brush.brushSize, ioState.brush.currentElement);
+                plotLine(ioState.mouse.x, ioState.mouse.y, ioState.lastMouse.x, ioState.lastMouse.y)
+                    .forEach(function (point) { return setSquare(point.x, point.y, ioState.brush.brushSize, ioState.brush.currentElement); });
             }
         }
     }
@@ -173,7 +181,7 @@ var setup = function () {
 };
 function draw() {
     gs = update(gs);
-    mouse();
+    doIO();
     makeTexture(gs, elementTexture);
     if (showTexture) {
         background(frameCount % 2 === 0 ? 255 : 0);
@@ -225,5 +233,31 @@ var map2 = function (arr1, arr2, callBack) {
 };
 var drag = function (number, minn, maxx) {
     return min(max(number, minn), maxx);
+};
+var plotLine = function (x0, y0, x1, y1) {
+    var dx = abs(x1 - x0);
+    var sx = x0 < x1 ? 1 : -1;
+    var dy = -abs(y1 - y0);
+    var sy = y0 < y1 ? 1 : -1;
+    var err = dx + dy;
+    var points = [];
+    while (true) {
+        points.push({ x: x0, y: y0 });
+        if (int(x0) === int(x1) && int(y0) === int(y1)) {
+            console.log("TRUE B");
+            break;
+        }
+        ;
+        var e2 = 2 * err;
+        if (e2 >= dy) {
+            err += dy;
+            x0 += sx;
+        }
+        if (e2 <= dx) {
+            err += dx;
+            y0 += sy;
+        }
+    }
+    return points;
 };
 //# sourceMappingURL=build.js.map

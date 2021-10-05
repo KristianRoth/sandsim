@@ -16,7 +16,6 @@ const showTexture = false
 let gs: GameState
 
 const preload = () => {
-
   texcoordShader = loadShader('sketch/shaders/uniform.vert', 'sketch/shaders/uniform.frag');
 }
 
@@ -36,7 +35,7 @@ const setup = () => {
 
 function draw() {
   gs = update(gs)
-  mouse()
+  doIO()
   makeTexture(gs, elementTexture)
 
   if (showTexture) {
