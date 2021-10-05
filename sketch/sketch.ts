@@ -6,12 +6,10 @@ const gw = w/gridSize
 const gh = h/gridSize
 const elementCount = 8
 const heightMultiplier = Math.ceil(elementCount/3)
-
-const loaded = () => true
-
 let elementTexture: p5.Image
 
-const showTexture = false
+//used to verify if this script is loaded for github pages
+const loaded = () => true
 
 let gs: GameState
 
@@ -24,25 +22,16 @@ const setup = () => {
   initializeUi()
   elementTexture = createImage(gw, gh * heightMultiplier)
   makeTexture(gs, elementTexture)
-  elementTexture.loadPixels()
-  console.log(elementTexture.pixels)
   console.log("STARTING SETUP GridSize:", gw, gh, "Texture multiplier:", heightMultiplier, "Texture size:", elementTexture.width, elementTexture.height)
-  
-  createCanvas(w, h, WEBGL); 
+  console.log("Starting gamestate:", gs)
+  createCanvas(w, h, WEBGL);
   noStroke()
-  console.log(gs)
 }
 
 function draw() {
   gs = update(gs)
   doIO()
   makeTexture(gs, elementTexture)
-
-  if (showTexture) {
-    background(frameCount%2 === 0 ? 255 : 0 )
-    image(elementTexture, 0, 0, 100, 200)
-    return
-  }
   
   shader(texcoordShader);
   texcoordShader.setUniform('size', [gw, gh*heightMultiplier])
@@ -52,7 +41,7 @@ function draw() {
   texcoordShader.setUniform('showTest', ioState.debugTexture)
   
   if(frameCount%100 === 0) {
-    console.log(frameRate())
+    console.log("Framerate:", ceil(frameRate()))
   }
   
   rect(0,0,w,h);

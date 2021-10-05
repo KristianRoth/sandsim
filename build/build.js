@@ -116,14 +116,16 @@ var initializeUi = function () {
     ioState.brush.brushSize = min(gw, gh) / 10;
     var controlsDiv = document.getElementById('controls');
     var brushSizeSlider = document.createElement('input');
+    var brushSizeLegend = getLabelElement('Brush size: ' + ioState.brush.brushSize);
     brushSizeSlider.type = 'range';
     brushSizeSlider.defaultValue = min(gw, gh) / 10 + '';
     brushSizeSlider.min = '1';
     brushSizeSlider.max = min(gw, gh) / 2 + '';
     brushSizeSlider.onchange = function () {
         ioState.brush.brushSize = int(brushSizeSlider.value);
+        brushSizeLegend.innerHTML = "Brush size: " + int(brushSizeSlider.value);
     };
-    controlsDiv.append(getLabelElement('Brush size:'));
+    controlsDiv.append(brushSizeLegend);
     controlsDiv.append(brushSizeSlider);
     var currentElmenetSelector = document.createElement('select');
     currentElmenetSelector.innerHTML = gs.elements[0][0].reduce(function (acc, e, i) { return acc + ("<option value=\"" + i + "\">" + i + "</option>"); }, "");
@@ -160,9 +162,8 @@ var gw = w / gridSize;
 var gh = h / gridSize;
 var elementCount = 8;
 var heightMultiplier = Math.ceil(elementCount / 3);
-var loaded = function () { return true; };
 var elementTexture;
-var showTexture = false;
+var loaded = function () { return true; };
 var gs;
 var preload = function () {
     texcoordShader = loadShader('sketch/shaders/uniform.vert', 'sketch/shaders/uniform.frag');
@@ -172,22 +173,15 @@ var setup = function () {
     initializeUi();
     elementTexture = createImage(gw, gh * heightMultiplier);
     makeTexture(gs, elementTexture);
-    elementTexture.loadPixels();
-    console.log(elementTexture.pixels);
     console.log("STARTING SETUP GridSize:", gw, gh, "Texture multiplier:", heightMultiplier, "Texture size:", elementTexture.width, elementTexture.height);
+    console.log("Starting gamestate:", gs);
     createCanvas(w, h, WEBGL);
     noStroke();
-    console.log(gs);
 };
 function draw() {
     gs = update(gs);
     doIO();
     makeTexture(gs, elementTexture);
-    if (showTexture) {
-        background(frameCount % 2 === 0 ? 255 : 0);
-        image(elementTexture, 0, 0, 100, 200);
-        return;
-    }
     shader(texcoordShader);
     texcoordShader.setUniform('size', [gw, gh * heightMultiplier]);
     texcoordShader.setUniform('heightMultiplier', heightMultiplier);
@@ -195,7 +189,7 @@ function draw() {
     texcoordShader.setUniform('elementTex', elementTexture);
     texcoordShader.setUniform('showTest', ioState.debugTexture);
     if (frameCount % 100 === 0) {
-        console.log(frameRate());
+        console.log("Framerate:", ceil(frameRate()));
     }
     rect(0, 0, w, h);
 }
@@ -244,7 +238,6 @@ var plotLine = function (x0, y0, x1, y1) {
     while (true) {
         points.push({ x: x0, y: y0 });
         if (int(x0) === int(x1) && int(y0) === int(y1)) {
-            console.log("TRUE B");
             break;
         }
         ;

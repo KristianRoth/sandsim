@@ -86,14 +86,16 @@ const initializeUi = () => {
   let controlsDiv = document.getElementById('controls')
 
   let brushSizeSlider = document.createElement('input')
+  let brushSizeLegend = getLabelElement('Brush size: ' + ioState.brush.brushSize)
   brushSizeSlider.type = 'range'
   brushSizeSlider.defaultValue = min(gw, gh)/10 + ''
   brushSizeSlider.min = '1'
   brushSizeSlider.max = min(gw, gh)/2 + ''
   brushSizeSlider.onchange = () => {
     ioState.brush.brushSize = int(brushSizeSlider.value)
+    brushSizeLegend.innerHTML = "Brush size: " + int(brushSizeSlider.value)
   }
-  controlsDiv.append(getLabelElement('Brush size:'))
+  controlsDiv.append(brushSizeLegend)
   controlsDiv.append(brushSizeSlider)
 
   let currentElmenetSelector = document.createElement('select')

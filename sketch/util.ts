@@ -27,7 +27,7 @@ const plotLine = (x0: number, y0: number, x1: number, y1: number): MouseState[] 
   let points: MouseState[] = []
   while (true) {
     points.push({ x: x0, y: y0})
-    if (int(x0) === int(x1) && int(y0) === int(y1)) { console.log("TRUE B"); break };
+    if (int(x0) === int(x1) && int(y0) === int(y1)) { break };
     let e2 = 2*err
     if (e2 >= dy) {
       err += dy
