@@ -98,9 +98,10 @@ const initializeUi = () => {
   let brushSizeSlider = document.createElement('input')
   let brushSizeLegend = getLabelElement('Brush size: ' + ioState.brush.brushSize)
   brushSizeSlider.type = 'range'
-  brushSizeSlider.defaultValue = str(min(gw, gh)/10)
   brushSizeSlider.min = '1'
   brushSizeSlider.max = str(min(gw, gh)/2)
+  brushSizeSlider.step = '1'
+  brushSizeSlider.defaultValue = str(min(gw, gh)/10)
   brushSizeSlider.oninput = () => {
     ioState.brush.brushSize = int(brushSizeSlider.value)
     brushSizeLegend.innerHTML = 'Brush size: ' + int(brushSizeSlider.value)
@@ -121,10 +122,10 @@ const initializeUi = () => {
   let elementAmountSlider = document.createElement('input')
   let elementAmountLegend = getLabelElement('Element amount: ' + ioState.brush.elementAmount)
   elementAmountSlider.type = 'range'
-  elementAmountSlider.defaultValue = '255'
   elementAmountSlider.min = '0'
   elementAmountSlider.max = '255'
   elementAmountSlider.step = '1'
+  elementAmountSlider.defaultValue = str(ioState.brush.elementAmount)
   elementAmountSlider.oninput = () => {
     ioState.brush.elementAmount = int(elementAmountSlider.value)
     elementAmountLegend.innerHTML = 'Element amount: ' + int(elementAmountSlider.value)
@@ -152,12 +153,12 @@ const initializeUi = () => {
 
   // GRAVITY AMOUNT
   let gravityAmountSlider = document.createElement('input')
-  let gravityAmountLegend = getLabelElement('Gravity amount: ' + ioState.brush.elementAmount)
+  let gravityAmountLegend = getLabelElement('Gravity amount: ' + ioState.gameParams.gravity)
   gravityAmountSlider.type = 'range'
-  gravityAmountSlider.defaultValue = str(ioState.gameParams.gravity)
   gravityAmountSlider.min = '0'
   gravityAmountSlider.max = '100'
   gravityAmountSlider.step = '1'
+  gravityAmountSlider.defaultValue = str(ioState.gameParams.gravity)
   gravityAmountSlider.oninput = () => {
     ioState.gameParams.gravity = int(gravityAmountSlider.value)
     gravityAmountLegend.innerHTML = 'Gravity amount: ' + int(gravityAmountSlider.value)
