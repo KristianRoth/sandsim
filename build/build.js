@@ -49,7 +49,7 @@ var update = function (gs) {
         for (var j = gh - 1; j >= 0; j--) {
             for (var x = -1; x <= 1; x += 2) {
                 if (j + x < gh && j + x >= 0) {
-                    var balanced = balance(gs.elements[i][j + x], gs.elements[i][j], (x === 1) ? 0.7 : 0.5);
+                    var balanced = balance(gs.elements[i][j + x], gs.elements[i][j], (x === 1) ? ioState.gameParams.gravity / 200 + 0.5 : 0.5);
                     gs.elements[i][j + x] = balanced.first;
                     gs.elements[i][j] = balanced.second;
                 }
@@ -92,6 +92,9 @@ var ioState = {
         brushType: BrushType.CIRCLE,
     },
     debugTexture: false,
+    gameParams: {
+        gravity: 70
+    }
 };
 var doIO = function () {
     ioState.lastMouse = ioState.mouse;
@@ -131,10 +134,10 @@ var initializeUi = function () {
     var brushSizeSlider = document.createElement('input');
     var brushSizeLegend = getLabelElement('Brush size: ' + ioState.brush.brushSize);
     brushSizeSlider.type = 'range';
-    brushSizeSlider.defaultValue = min(gw, gh) / 10 + '';
+    brushSizeSlider.defaultValue = str(min(gw, gh) / 10);
     brushSizeSlider.min = '1';
-    brushSizeSlider.max = min(gw, gh) / 2 + '';
-    brushSizeSlider.onchange = function () {
+    brushSizeSlider.max = str(min(gw, gh) / 2);
+    brushSizeSlider.oninput = function () {
         ioState.brush.brushSize = int(brushSizeSlider.value);
         brushSizeLegend.innerHTML = 'Brush size: ' + int(brushSizeSlider.value);
     };
@@ -154,7 +157,7 @@ var initializeUi = function () {
     elementAmountSlider.min = '0';
     elementAmountSlider.max = '255';
     elementAmountSlider.step = '1';
-    elementAmountSlider.onchange = function () {
+    elementAmountSlider.oninput = function () {
         ioState.brush.elementAmount = int(elementAmountSlider.value);
         elementAmountLegend.innerHTML = 'Element amount: ' + int(elementAmountSlider.value);
     };
@@ -174,6 +177,19 @@ var initializeUi = function () {
     };
     controlsDiv.append(getLabelElement('Enable texture debug:'));
     controlsDiv.append(debugTextureCheckbox);
+    var gravityAmountSlider = document.createElement('input');
+    var gravityAmountLegend = getLabelElement('Gravity amount: ' + ioState.brush.elementAmount);
+    gravityAmountSlider.type = 'range';
+    gravityAmountSlider.defaultValue = str(ioState.gameParams.gravity);
+    gravityAmountSlider.min = '0';
+    gravityAmountSlider.max = '100';
+    gravityAmountSlider.step = '1';
+    gravityAmountSlider.oninput = function () {
+        ioState.gameParams.gravity = int(gravityAmountSlider.value);
+        gravityAmountLegend.innerHTML = 'Gravity amount: ' + int(gravityAmountSlider.value);
+    };
+    controlsDiv.append(gravityAmountLegend);
+    controlsDiv.append(gravityAmountSlider);
 };
 var getLabelElement = function (text) {
     var label = document.createElement('label');

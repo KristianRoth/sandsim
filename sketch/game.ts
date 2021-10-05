@@ -57,7 +57,7 @@ const update = (gs: GameState) => {
     for (let j = gh - 1; j >= 0; j--) {
       for (let x = -1; x <= 1; x += 2) {
         if (j + x < gh && j + x >= 0) {
-          let balanced = balance(gs.elements[i][j+x], gs.elements[i][j], (x === 1) ? 0.7 : 0.5)
+          let balanced = balance(gs.elements[i][j+x], gs.elements[i][j], (x === 1) ? ioState.gameParams.gravity/200+0.5 : 0.5)
           gs.elements[i][j+x]= balanced.first
           gs.elements[i][j] = balanced.second
         }

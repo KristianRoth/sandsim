@@ -5,6 +5,7 @@ type IOState = {
   lastMouse: MouseState,
   brush: BrushState,
   debugTexture: boolean,
+  gameParams: GameParams,
 }
 
 type MouseState = {
@@ -17,6 +18,10 @@ type BrushState = {
   brushSize: number,
   elementAmount: number,
   brushType: BrushType,
+}
+
+type GameParams = {
+  gravity: number,
 }
 
 enum BrushType {
@@ -40,6 +45,9 @@ let ioState: IOState = {
     brushType: BrushType.CIRCLE,
   },
   debugTexture: false,
+  gameParams: {
+    gravity: 70
+  }
 }
 
 const doIO = () => {
@@ -90,10 +98,10 @@ const initializeUi = () => {
   let brushSizeSlider = document.createElement('input')
   let brushSizeLegend = getLabelElement('Brush size: ' + ioState.brush.brushSize)
   brushSizeSlider.type = 'range'
-  brushSizeSlider.defaultValue = min(gw, gh)/10 + ''
+  brushSizeSlider.defaultValue = str(min(gw, gh)/10)
   brushSizeSlider.min = '1'
-  brushSizeSlider.max = min(gw, gh)/2 + ''
-  brushSizeSlider.onchange = () => {
+  brushSizeSlider.max = str(min(gw, gh)/2)
+  brushSizeSlider.oninput = () => {
     ioState.brush.brushSize = int(brushSizeSlider.value)
     brushSizeLegend.innerHTML = 'Brush size: ' + int(brushSizeSlider.value)
   }
@@ -117,7 +125,7 @@ const initializeUi = () => {
   elementAmountSlider.min = '0'
   elementAmountSlider.max = '255'
   elementAmountSlider.step = '1'
-  elementAmountSlider.onchange = () => {
+  elementAmountSlider.oninput = () => {
     ioState.brush.elementAmount = int(elementAmountSlider.value)
     elementAmountLegend.innerHTML = 'Element amount: ' + int(elementAmountSlider.value)
   }
@@ -141,6 +149,21 @@ const initializeUi = () => {
   }
   controlsDiv.append(getLabelElement('Enable texture debug:'))
   controlsDiv.append(debugTextureCheckbox)
+
+  // GRAVITY AMOUNT
+  let gravityAmountSlider = document.createElement('input')
+  let gravityAmountLegend = getLabelElement('Gravity amount: ' + ioState.brush.elementAmount)
+  gravityAmountSlider.type = 'range'
+  gravityAmountSlider.defaultValue = str(ioState.gameParams.gravity)
+  gravityAmountSlider.min = '0'
+  gravityAmountSlider.max = '100'
+  gravityAmountSlider.step = '1'
+  gravityAmountSlider.oninput = () => {
+    ioState.gameParams.gravity = int(gravityAmountSlider.value)
+    gravityAmountLegend.innerHTML = 'Gravity amount: ' + int(gravityAmountSlider.value)
+  }
+  controlsDiv.append(gravityAmountLegend)
+  controlsDiv.append(gravityAmountSlider)
 }
 
 let getLabelElement = (text: string) => {
