@@ -165,6 +165,11 @@ const initializeUi = () => {
   }
   controlsDiv.append(gravityAmountLegend)
   controlsDiv.append(gravityAmountSlider)
+
+  // LINK TO GH
+  let desc = document.createElement('p')
+  desc.innerHTML = `Source code can be found <a target="_blank" href="https://github.com/KristianRoth/sandsim" >here</a>`
+  controlsDiv.append(desc)
 }
 
 let getLabelElement = (text: string) => {

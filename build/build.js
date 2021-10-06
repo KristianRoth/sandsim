@@ -1,46 +1,103 @@
-var elementColors1 = [
-    1, 0, 0, 1,
-    0, 1, 0, 1,
-    0, 0, 1, 1,
-    1, 0, 1, 1,
-    1, 1, 0, 1,
-    1, 1, 1, 1,
-    1, 0.5, 0, 1,
-    1, 0, 0.5, 1,
-];
-var elementColors = function () {
-    return [
-        random(1), random(1), random(1), 1,
-        random(1), random(1), random(1), 1,
-        random(1), random(1), random(1), 1,
-        random(1), random(1), random(1), 1,
-        random(1), random(1), random(1), 1,
-        random(1), random(1), random(1), 1,
-        random(1), random(1), random(1), 1,
-        random(1), random(1), random(1), 1,
-    ];
+var Phase;
+(function (Phase) {
+    Phase[Phase["GAS"] = 0] = "GAS";
+    Phase[Phase["LIQUID"] = 1] = "LIQUID";
+    Phase[Phase["DUST"] = 2] = "DUST";
+    Phase[Phase["SOLID"] = 3] = "SOLID";
+})(Phase || (Phase = {}));
+var getColor = function (r, g, b) {
+    return [r / 255, g / 255, b / 255, 255];
 };
+var elementProps = [
+    {
+        name: 'Sand',
+        density: 1442,
+        phase: Phase.DUST,
+        boilingPoint: 2230,
+        freezingPoint: 1550,
+        color: getColor(194, 178, 128),
+        flamable: false,
+    },
+    {
+        name: 'Water',
+        density: 997,
+        phase: Phase.LIQUID,
+        boilingPoint: 100,
+        freezingPoint: 0,
+        color: getColor(21, 61, 237),
+        flamable: false,
+    },
+    {
+        name: 'Wood',
+        density: 497,
+        phase: Phase.LIQUID,
+        boilingPoint: 100,
+        freezingPoint: 0,
+        color: getColor(79, 53, 14),
+        flamable: false,
+    },
+    {
+        name: 'Wood',
+        density: 497,
+        phase: Phase.LIQUID,
+        boilingPoint: 100,
+        freezingPoint: 0,
+        color: getColor(79, 53, 14),
+        flamable: false,
+    },
+    {
+        name: 'Wood',
+        density: 497,
+        phase: Phase.LIQUID,
+        boilingPoint: 100,
+        freezingPoint: 0,
+        color: getColor(79, 53, 14),
+        flamable: false,
+    },
+    {
+        name: 'Wood',
+        density: 497,
+        phase: Phase.LIQUID,
+        boilingPoint: 100,
+        freezingPoint: 0,
+        color: getColor(79, 53, 14),
+        flamable: false,
+    },
+    {
+        name: 'Wood',
+        density: 497,
+        phase: Phase.LIQUID,
+        boilingPoint: 100,
+        freezingPoint: 0,
+        color: getColor(79, 53, 14),
+        flamable: false,
+    },
+    {
+        name: 'Wood',
+        density: 497,
+        phase: Phase.LIQUID,
+        boilingPoint: 100,
+        freezingPoint: 0,
+        color: getColor(79, 53, 14),
+        flamable: false,
+    },
+];
+var elementColors = elementProps.reduce(function (acc, current) { return acc.concat(current.color); }, []);
 var initialize = function () {
-    var elements = [];
+    var elements = makeArray(0, gw, gh, elementCount);
+    var tempatures = makeArray(20, gw, gh);
     for (var i = 0; i < gw; i++) {
-        var col = [];
         for (var j = 0; j < gh; j++) {
-            var eArray = [];
-            for (var e = 0; e < elementCount; e++) {
-                eArray.push(0);
-            }
-            eArray[0] = (i === j || i === gw - j) ? 255 : 0;
-            eArray[1] = (abs(int(gw / 2) - i) < 3) ? 255 : 0;
-            eArray[2] = (j == 0) ? 255 : 0;
-            eArray[5] = 0;
-            eArray[7] = 0;
-            col.push(eArray);
+            elements[i][j][0] = (i === j || i === gw - j) ? 255 : 0;
+            elements[i][j][1] = 0;
+            elements[i][j][2] = 0;
+            elements[i][j][5] = 0;
+            elements[i][j][7] = 0;
         }
-        elements.push(col);
     }
     gs = {
         elements: elements,
-        elementColors: elementColors1
+        tempature: tempatures
     };
     return gs;
 };
@@ -191,6 +248,9 @@ var initializeUi = function () {
     };
     controlsDiv.append(gravityAmountLegend);
     controlsDiv.append(gravityAmountSlider);
+    var desc = document.createElement('p');
+    desc.innerHTML = "Source code can be found <a target=\"_blank\" href=\"https://github.com/KristianRoth/sandsim\" >here</a>";
+    controlsDiv.append(desc);
 };
 var getLabelElement = function (text) {
     var label = document.createElement('label');
@@ -228,7 +288,7 @@ function draw() {
     shader(texcoordShader);
     texcoordShader.setUniform('size', [gw, gh * heightMultiplier]);
     texcoordShader.setUniform('heightMultiplier', heightMultiplier);
-    texcoordShader.setUniform('elementColors', gs.elementColors);
+    texcoordShader.setUniform('elementColors', elementColors);
     texcoordShader.setUniform('elementTex', elementTexture);
     texcoordShader.setUniform('showTest', ioState.debugTexture);
     if (frameCount % 100 === 0) {
@@ -257,6 +317,13 @@ var makeTexture = function (gs, tex) {
         }
     }
     tex.updatePixels();
+};
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
 };
 var map2 = function (arr1, arr2, callBack) {
     var ret1 = [];
@@ -295,5 +362,20 @@ var plotLine = function (x0, y0, x1, y1) {
         }
     }
     return points;
+};
+var makeArray = function (initialValue) {
+    var args = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args[_i - 1] = arguments[_i];
+    }
+    if (args.length === 0) {
+        return initialValue;
+    }
+    var col = [];
+    var currentDim = args[0], tail = args.slice(1);
+    for (var i = 0; i < currentDim; i++) {
+        col.push(makeArray.apply(void 0, __spreadArrays([initialValue], tail)));
+    }
+    return col;
 };
 //# sourceMappingURL=build.js.map

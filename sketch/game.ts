@@ -1,56 +1,26 @@
 type GameState = {
   elements: number[][][];
-  elementColors: number[]
+  tempature: number[][];
 }
 
-const elementColors1 = [
-  1, 0, 0, 1,
-  0, 1, 0, 1,
-  0, 0, 1, 1,
-  1, 0, 1, 1,
-  1, 1, 0, 1,
-  1, 1, 1, 1,
-  1, 0.5, 0, 1,
-  1, 0, 0.5, 1,
-]
-const elementColors = () =>  {return [
-  random(1), random(1), random(1), 1,
-  random(1), random(1), random(1), 1,
-  random(1), random(1), random(1), 1,
-  random(1), random(1), random(1), 1,
-  random(1), random(1), random(1), 1,
-  random(1), random(1), random(1), 1,
-  random(1), random(1), random(1), 1,
-  random(1), random(1), random(1), 1,
-]}
-
-
-
 const initialize = () => {
-  let elements = []
+  let elements = makeArray(0, gw, gh, elementCount) as number[][][]
+  let tempatures = makeArray(20, gw, gh) as number[][]
   for (let i = 0; i < gw; i++) {
-    let col = []
     for (let j = 0; j < gh; j++) {
-      let eArray = []
-      for (let e = 0; e < elementCount; e++) {
-        eArray.push(0)
-      }
-      eArray[0] = (i === j || i === gw - j) ? 255 : 0
-      eArray[1] = ( abs(int(gw/2) - i) < 3) ? 255 : 0 
-      eArray[2] = (j == 0) ? 255 : 0
-      eArray[5] = 0
-      eArray[7] = 0
-      col.push(eArray)
+      elements[i][j][0] = (i === j || i === gw - j) ? 255 : 0
+      elements[i][j][1] = 0 //( abs(int(gw/2) - i) < 3) ? 255 : 0 
+      elements[i][j][2] = 0 //(j == 0) ? 255 : 0
+      elements[i][j][5] = 0
+      elements[i][j][7] = 0
     }
-    elements.push(col)
   }
   gs = { 
     elements: elements,
-    elementColors: elementColors1
+    tempature: tempatures
   }
   return gs
 }
-
 
 const update = (gs: GameState) => {
   for (let i = 0; i < gw; i++) {
@@ -66,13 +36,11 @@ const update = (gs: GameState) => {
           gs.elements[i+x][j]= balanced.first
           gs.elements[i][j] = balanced.second
         }
-        
       }
     }
   }
   return gs
 }
-
 
 const balance = (src: number[], dest: number[], balance: number = 0.5 ) => {
   return map2(src, dest, (element1: number, element2: number) => {

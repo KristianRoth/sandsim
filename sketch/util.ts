@@ -3,6 +3,8 @@ type Pair<A, B> = {
   second: B
 }
 
+type NestedArray<T> = T | NestedArray<T>[];
+
 const map2 = <A>(arr1: A[], arr2: A[], callBack: (a: A, b: A) => Pair<A, A>): Pair<A[], A[]>  => {
   let ret1: A[] = []
   let ret2: A[] = []
@@ -39,4 +41,17 @@ const plotLine = (x0: number, y0: number, x1: number, y1: number): MouseState[] 
     }
   }
   return points
+}
+
+const makeArray = <A>(initialValue: A, ...args: number[]) => {
+  if (args.length === 0) {
+    return initialValue
+  }
+
+  let col: NestedArray<A> = []
+  const [currentDim, ...tail] = args
+  for (let i = 0; i < currentDim; i++) {
+    col.push(makeArray(initialValue, ...tail))
+  }
+  return col
 }

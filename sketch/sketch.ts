@@ -36,7 +36,7 @@ function draw() {
   shader(texcoordShader);
   texcoordShader.setUniform('size', [gw, gh*heightMultiplier])
   texcoordShader.setUniform('heightMultiplier', heightMultiplier)
-  texcoordShader.setUniform('elementColors', gs.elementColors)
+  texcoordShader.setUniform('elementColors', elementColors)
   texcoordShader.setUniform('elementTex', elementTexture)
   texcoordShader.setUniform('showTest', ioState.debugTexture)
   
