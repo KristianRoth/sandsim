@@ -200,45 +200,13 @@ var setArea = function (x, y, radius, elementId, elementAmount, fn) {
 var initializeUi = function () {
     ioState.brush.brushSize = min(gw, gh) / 10;
     var controlsDiv = document.getElementById('controls');
-    var brushSizeSlider = document.createElement('input');
-    var brushSizeLegend = getLabelElement('Brush size: ' + ioState.brush.brushSize);
-    brushSizeSlider.type = 'range';
-    brushSizeSlider.min = '1';
-    brushSizeSlider.max = str(min(gw, gh) / 2);
-    brushSizeSlider.step = '1';
-    brushSizeSlider.defaultValue = str(min(gw, gh) / 10);
-    brushSizeSlider.oninput = function () {
-        ioState.brush.brushSize = int(brushSizeSlider.value);
-        brushSizeLegend.innerHTML = 'Brush size: ' + int(brushSizeSlider.value);
-    };
-    controlsDiv.append(brushSizeLegend);
+    var brushSizeSlider = getSliderElement('Brush size', 1, min(gw, gh) / 2, 1, ioState.brush.brushSize, function (value) { ioState.brush.brushSize = value; });
     controlsDiv.append(brushSizeSlider);
-    var currentElmenetSelector = document.createElement('select');
-    currentElmenetSelector.innerHTML = elementProps.reduce(function (acc, e, i) { return acc + ("<option value=\"" + i + "\">" + e.name + "</option>"); }, "");
-    currentElmenetSelector.onchange = function () {
-        ioState.brush.currentElement = int(currentElmenetSelector.value);
-    };
-    controlsDiv.append(getLabelElement('Current element:'));
+    var currentElmenetSelector = getSelectElement("Brush type", false, elementProps.map(function (e, i) { return ({ first: i, second: e.name }); }), function (value) { ioState.brush.currentElement = int(value); });
     controlsDiv.append(currentElmenetSelector);
-    var elementAmountSlider = document.createElement('input');
-    var elementAmountLegend = getLabelElement('Element amount: ' + ioState.brush.elementAmount);
-    elementAmountSlider.type = 'range';
-    elementAmountSlider.min = '0';
-    elementAmountSlider.max = '255';
-    elementAmountSlider.step = '1';
-    elementAmountSlider.defaultValue = str(ioState.brush.elementAmount);
-    elementAmountSlider.oninput = function () {
-        ioState.brush.elementAmount = int(elementAmountSlider.value);
-        elementAmountLegend.innerHTML = 'Element amount: ' + int(elementAmountSlider.value);
-    };
-    controlsDiv.append(elementAmountLegend);
+    var elementAmountSlider = getSliderElement('Element amount', 0, 255, 1, ioState.brush.elementAmount, function (value) { ioState.brush.elementAmount = value; });
     controlsDiv.append(elementAmountSlider);
-    var brushTypeSelector = document.createElement('select');
-    brushTypeSelector.innerHTML = Object.keys(BrushType).reduce(function (acc, e, i) { return "<option value=\"" + e + "\">" + e + "</option>" + acc; }, "");
-    brushTypeSelector.onchange = function () {
-        ioState.brush.brushType = BrushType[brushTypeSelector.options[brushTypeSelector.selectedIndex].value];
-    };
-    controlsDiv.append(getLabelElement('Brush type:'));
+    var brushTypeSelector = getSelectElement("Brush type", true, Object.keys(BrushType).map(function (e) { return ({ first: e, second: e }); }), function (value) { ioState.brush.brushType = BrushType[value]; });
     controlsDiv.append(brushTypeSelector);
     var debugTextureCheckbox = document.createElement('input');
     debugTextureCheckbox.type = 'checkbox';
@@ -247,18 +215,7 @@ var initializeUi = function () {
     };
     controlsDiv.append(getLabelElement('Enable texture debug:'));
     controlsDiv.append(debugTextureCheckbox);
-    var gravityAmountSlider = document.createElement('input');
-    var gravityAmountLegend = getLabelElement('Gravity amount: ' + ioState.gameParams.gravity);
-    gravityAmountSlider.type = 'range';
-    gravityAmountSlider.min = '0';
-    gravityAmountSlider.max = '100';
-    gravityAmountSlider.step = '1';
-    gravityAmountSlider.defaultValue = str(ioState.gameParams.gravity);
-    gravityAmountSlider.oninput = function () {
-        ioState.gameParams.gravity = int(gravityAmountSlider.value);
-        gravityAmountLegend.innerHTML = 'Gravity amount: ' + int(gravityAmountSlider.value);
-    };
-    controlsDiv.append(gravityAmountLegend);
+    var gravityAmountSlider = getSliderElement('Gravity amount', 0, 100, 1, ioState.gameParams.gravity, function (value) { ioState.gameParams.gravity = value; });
     controlsDiv.append(gravityAmountSlider);
     var desc = document.createElement('p');
     desc.innerHTML = "Source code can be found <a target=\"_blank\" href=\"https://github.com/KristianRoth/sandsim\" >here</a>";
@@ -268,6 +225,35 @@ var getLabelElement = function (text) {
     var label = document.createElement('label');
     label.innerHTML = text;
     return label;
+};
+var getSliderElement = function (title, min, max, step, defaultValue, updateState) {
+    var sliderContainer = document.createElement('div');
+    var slider = document.createElement('input');
+    var legend = getLabelElement(title + ': ' + defaultValue);
+    slider.type = 'range';
+    slider.min = str(min);
+    slider.max = str(max);
+    slider.step = str(step !== null && step !== void 0 ? step : '1');
+    slider.defaultValue = str(defaultValue);
+    slider.oninput = function () {
+        updateState(int(slider.value));
+        legend.innerHTML = title + ': ' + int(slider.value);
+    };
+    sliderContainer.append(legend);
+    sliderContainer.append(slider);
+    return sliderContainer;
+};
+var getSelectElement = function (title, reverse, options, updateState) {
+    var selectContainer = document.createElement('div');
+    var selector = document.createElement('select');
+    options = (reverse) ? options.reverse() : options;
+    selector.innerHTML = options.reduce(function (acc, e, i) { return acc + ("<option value=\"" + str(e.first) + "\">" + e.second + "</option>"); }, "");
+    selector.onchange = function () {
+        updateState(selector.options[selector.selectedIndex].value);
+    };
+    selectContainer.append(getLabelElement(title + ': '));
+    selectContainer.append(selector);
+    return selectContainer;
 };
 var texcoordShader;
 var gridSize = 10;

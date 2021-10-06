@@ -87,57 +87,38 @@ const setArea = (x: number, y: number, radius: number, elementId: number, elemen
 }
 
 const initializeUi = () => {
-
   ioState.brush.brushSize = min(gw, gh)/10
 
   let controlsDiv = document.getElementById('controls')
 
   // BRUSH SIZE
-  let brushSizeSlider = document.createElement('input')
-  let brushSizeLegend = getLabelElement('Brush size: ' + ioState.brush.brushSize)
-  brushSizeSlider.type = 'range'
-  brushSizeSlider.min = '1'
-  brushSizeSlider.max = str(min(gw, gh)/2)
-  brushSizeSlider.step = '1'
-  brushSizeSlider.defaultValue = str(min(gw, gh)/10)
-  brushSizeSlider.oninput = () => {
-    ioState.brush.brushSize = int(brushSizeSlider.value)
-    brushSizeLegend.innerHTML = 'Brush size: ' + int(brushSizeSlider.value)
-  }
-  controlsDiv.append(brushSizeLegend)
+  let brushSizeSlider = getSliderElement(
+    'Brush size', 1, min(gw, gh)/2, 1, ioState.brush.brushSize, 
+    (value) => {ioState.brush.brushSize = value}
+  )
   controlsDiv.append(brushSizeSlider)
 
   // CURRENT ELEMENT
-  let currentElmenetSelector = document.createElement('select')
-  currentElmenetSelector.innerHTML = elementProps.reduce((acc, e, i) => acc + `<option value="${i}">${e.name}</option>`, "")
-  currentElmenetSelector.onchange = () => { 
-    ioState.brush.currentElement = int(currentElmenetSelector.value)
-  }
-  controlsDiv.append(getLabelElement('Current element:'))
+  let currentElmenetSelector = getSelectElement(
+    "Brush type", false, 
+    elementProps.map((e, i) => ({ first: i, second: e.name })),
+    (value) => { ioState.brush.currentElement = int(value) }
+  )
   controlsDiv.append(currentElmenetSelector)
 
   // ELEMENT AMOUNT
-  let elementAmountSlider = document.createElement('input')
-  let elementAmountLegend = getLabelElement('Element amount: ' + ioState.brush.elementAmount)
-  elementAmountSlider.type = 'range'
-  elementAmountSlider.min = '0'
-  elementAmountSlider.max = '255'
-  elementAmountSlider.step = '1'
-  elementAmountSlider.defaultValue = str(ioState.brush.elementAmount)
-  elementAmountSlider.oninput = () => {
-    ioState.brush.elementAmount = int(elementAmountSlider.value)
-    elementAmountLegend.innerHTML = 'Element amount: ' + int(elementAmountSlider.value)
-  }
-  controlsDiv.append(elementAmountLegend)
+  let elementAmountSlider = getSliderElement(
+    'Element amount', 0, 255, 1, ioState.brush.elementAmount, 
+    (value) => {ioState.brush.elementAmount = value}
+  )
   controlsDiv.append(elementAmountSlider)
 
   // BRUSH TYPE
-  let brushTypeSelector = document.createElement('select')
-  brushTypeSelector.innerHTML = Object.keys(BrushType).reduce((acc, e, i) => `<option value="${e}">${e}</option>` + acc, "")
-  brushTypeSelector.onchange = () => {
-    ioState.brush.brushType = BrushType[ brushTypeSelector.options[brushTypeSelector.selectedIndex].value as keyof typeof BrushType ]
-  }
-  controlsDiv.append(getLabelElement('Brush type:'))
+  let brushTypeSelector = getSelectElement(
+    "Brush type", true, 
+    Object.keys(BrushType).map((e) => ({ first: e, second: e })),
+    (value) => { ioState.brush.brushType = BrushType[ value as keyof typeof BrushType ] }
+  )
   controlsDiv.append(brushTypeSelector)
 
   // DEBUG TEXTURE
@@ -150,18 +131,10 @@ const initializeUi = () => {
   controlsDiv.append(debugTextureCheckbox)
 
   // GRAVITY AMOUNT
-  let gravityAmountSlider = document.createElement('input')
-  let gravityAmountLegend = getLabelElement('Gravity amount: ' + ioState.gameParams.gravity)
-  gravityAmountSlider.type = 'range'
-  gravityAmountSlider.min = '0'
-  gravityAmountSlider.max = '100'
-  gravityAmountSlider.step = '1'
-  gravityAmountSlider.defaultValue = str(ioState.gameParams.gravity)
-  gravityAmountSlider.oninput = () => {
-    ioState.gameParams.gravity = int(gravityAmountSlider.value)
-    gravityAmountLegend.innerHTML = 'Gravity amount: ' + int(gravityAmountSlider.value)
-  }
-  controlsDiv.append(gravityAmountLegend)
+  let gravityAmountSlider = getSliderElement(
+    'Gravity amount', 0, 100, 1, ioState.gameParams.gravity, 
+    (value) => {ioState.gameParams.gravity = value}
+  )
   controlsDiv.append(gravityAmountSlider)
 
   // LINK TO GH
@@ -174,4 +147,35 @@ let getLabelElement = (text: string) => {
   let label = document.createElement('label')
   label.innerHTML = text
   return label
+}
+
+let getSliderElement = (title: string, min: number, max: number, step: number, defaultValue: number, updateState?: (value: number) => void) => {
+  let sliderContainer = document.createElement('div')
+  let slider = document.createElement('input')
+  let legend = getLabelElement(title + ': ' + defaultValue)
+  slider.type = 'range'
+  slider.min = str(min)
+  slider.max = str(max)
+  slider.step = str(step ?? '1')
+  slider.defaultValue = str(defaultValue)
+  slider.oninput = () => {
+    updateState(int(slider.value))
+    legend.innerHTML = title + ': ' + int(slider.value)
+  }
+  sliderContainer.append(legend)
+  sliderContainer.append(slider)
+  return sliderContainer
+}
+
+let getSelectElement = (title: string, reverse: boolean, options: Pair<string | number, string>[], updateState?: (value: string) => void) => {
+  let selectContainer = document.createElement('div')
+  let selector = document.createElement('select')
+  options = (reverse) ? options.reverse() : options
+  selector.innerHTML = options.reduce((acc, e, i) => acc + `<option value="${str(e.first)}">${e.second}</option>`, "")
+  selector.onchange = () => {
+    updateState(selector.options[selector.selectedIndex].value)
+  }
+  selectContainer.append(getLabelElement(title + ': '))
+  selectContainer.append(selector)
+  return selectContainer
 }
