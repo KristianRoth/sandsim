@@ -1,17 +1,21 @@
+import { GameState, initialize, update } from "./game"
+import { doIO, initializeUi, ioState } from "./io";
+
+
 let texcoordShader: p5.Shader;
-const gridSize = 10;
-const w = 1000
-const h = 1000
-const gw = w/gridSize
-const gh = h/gridSize
-const elementCount = 8
-const heightMultiplier = Math.ceil(elementCount/3)
+export const gridSize = 10;
+export const w = 1000
+export const h = 1000
+export const gw = w/gridSize
+export const gh = h/gridSize
+export const elementCount = 8
+export const heightMultiplier = Math.ceil(elementCount/3)
 let elementTexture: p5.Image
 
 //used to verify if this script is loaded for github pages
 const loaded = () => true
 
-let gs: GameState
+export let gs: GameState
 
 const preload = () => {
   texcoordShader = loadShader('sketch/shaders/uniform.vert', 'sketch/shaders/uniform.frag');

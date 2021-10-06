@@ -1,4 +1,5 @@
-
+import { gh, gridSize, gs, gw } from "./sketch"
+import { drag, plotLine } from "./util"
 
 type IOState = {
   mouse: MouseState,
@@ -8,7 +9,7 @@ type IOState = {
   gameParams: GameParams,
 }
 
-type MouseState = {
+export type MouseState = {
   x: number,
   y: number
 }
@@ -29,7 +30,7 @@ enum BrushType {
   CIRCLE = "CIRCLE"
 }
 
-let ioState: IOState = {
+export let ioState: IOState = {
   mouse: {
     x: 0,
     y: 0,
@@ -50,7 +51,7 @@ let ioState: IOState = {
   }
 }
 
-const doIO = () => {
+export const doIO = () => {
   ioState.lastMouse = ioState.mouse
   let [ x, y ] = [mouseX, mouseY].map((a) => drag(floor(a/gridSize), 0, gw - 1))
   ioState.mouse = {x: x, y: y}
@@ -88,7 +89,7 @@ const setArea = (x: number, y: number, radius: number, elementId: number, elemen
   }
 }
 
-const initializeUi = () => {
+export const initializeUi = () => {
 
   ioState.brush.brushSize = min(gw, gh)/10
 
@@ -106,8 +107,8 @@ const initializeUi = () => {
     ioState.brush.brushSize = int(brushSizeSlider.value)
     brushSizeLegend.innerHTML = 'Brush size: ' + int(brushSizeSlider.value)
   }
-  controlsDiv.append(brushSizeLegend)
-  controlsDiv.append(brushSizeSlider)
+  controlsDiv?.append(brushSizeLegend)
+  controlsDiv?.append(brushSizeSlider)
 
   // CURRENT ELEMENT
   let currentElmenetSelector = document.createElement('select')
@@ -115,8 +116,8 @@ const initializeUi = () => {
   currentElmenetSelector.onchange = () => { 
     ioState.brush.currentElement = int(currentElmenetSelector.value)
   }
-  controlsDiv.append(getLabelElement('Current element:'))
-  controlsDiv.append(currentElmenetSelector)
+  controlsDiv?.append(getLabelElement('Current element:'))
+  controlsDiv?.append(currentElmenetSelector)
 
   // ELEMENT AMOUNT
   let elementAmountSlider = document.createElement('input')
@@ -130,8 +131,8 @@ const initializeUi = () => {
     ioState.brush.elementAmount = int(elementAmountSlider.value)
     elementAmountLegend.innerHTML = 'Element amount: ' + int(elementAmountSlider.value)
   }
-  controlsDiv.append(elementAmountLegend)
-  controlsDiv.append(elementAmountSlider)
+  controlsDiv?.append(elementAmountLegend)
+  controlsDiv?.append(elementAmountSlider)
 
   // BRUSH TYPE
   let brushTypeSelector = document.createElement('select')
@@ -139,8 +140,8 @@ const initializeUi = () => {
   brushTypeSelector.onchange = () => {
     ioState.brush.brushType = BrushType[ brushTypeSelector.options[brushTypeSelector.selectedIndex].value as keyof typeof BrushType ]
   }
-  controlsDiv.append(getLabelElement('Brush type:'))
-  controlsDiv.append(brushTypeSelector)
+  controlsDiv?.append(getLabelElement('Brush type:'))
+  controlsDiv?.append(brushTypeSelector)
 
   // DEBUG TEXTURE
   let debugTextureCheckbox = document.createElement('input')
@@ -148,8 +149,8 @@ const initializeUi = () => {
   debugTextureCheckbox.onchange = () => {
     ioState.debugTexture = debugTextureCheckbox.checked
   }
-  controlsDiv.append(getLabelElement('Enable texture debug:'))
-  controlsDiv.append(debugTextureCheckbox)
+  controlsDiv?.append(getLabelElement('Enable texture debug:'))
+  controlsDiv?.append(debugTextureCheckbox)
 
   // GRAVITY AMOUNT
   let gravityAmountSlider = document.createElement('input')
@@ -163,13 +164,13 @@ const initializeUi = () => {
     ioState.gameParams.gravity = int(gravityAmountSlider.value)
     gravityAmountLegend.innerHTML = 'Gravity amount: ' + int(gravityAmountSlider.value)
   }
-  controlsDiv.append(gravityAmountLegend)
-  controlsDiv.append(gravityAmountSlider)
+  controlsDiv?.append(gravityAmountLegend)
+  controlsDiv?.append(gravityAmountSlider)
 
   // LINK TO GH
   let desc = document.createElement('p')
   desc.innerHTML = `Source code can be found <a target="_blank" href="https://github.com/KristianRoth/sandsim" >here</a>`
-  controlsDiv.append(desc)
+  controlsDiv?.append(desc)
 }
 
 let getLabelElement = (text: string) => {

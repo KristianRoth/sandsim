@@ -95,4 +95,4 @@ const elementProps: ElementProps[] = [
   },
 ]
 
-const elementColors = elementProps.reduce((acc, current) => acc.concat(current.color), [])
+const elementColors = elementProps.reduce((acc, current) => acc.concat(current.color), [] as number[])

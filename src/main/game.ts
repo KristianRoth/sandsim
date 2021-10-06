@@ -1,9 +1,13 @@
-type GameState = {
+import { ioState } from "./io"
+import { elementCount, gh, gs, gw } from "./sketch"
+import { makeArray, map2 } from "./util"
+
+export type GameState = {
   elements: number[][][];
   tempature: number[][];
 }
 
-const initialize = () => {
+export const initialize = () => {
   let elements = makeArray(0, gw, gh, elementCount) as number[][][]
   let tempatures = makeArray(20, gw, gh) as number[][]
   for (let i = 0; i < gw; i++) {
@@ -15,14 +19,13 @@ const initialize = () => {
       elements[i][j][7] = 0
     }
   }
-  gs = { 
+  return { 
     elements: elements,
     tempature: tempatures
   }
-  return gs
 }
 
-const update = (gs: GameState) => {
+export const update = (gs: GameState) => {
   for (let i = 0; i < gw; i++) {
     for (let j = gh - 1; j >= 0; j--) {
       for (let x = -1; x <= 1; x += 2) {
