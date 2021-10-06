@@ -111,7 +111,7 @@ const initializeUi = () => {
 
   // CURRENT ELEMENT
   let currentElmenetSelector = document.createElement('select')
-  currentElmenetSelector.innerHTML = gs.elements[0][0].reduce((acc, e, i) => acc + `<option value="${i}">${i}</option>`, "")
+  currentElmenetSelector.innerHTML = elementProps.reduce((acc, e, i) => acc + `<option value="${i}">${e.name}</option>`, "")
   currentElmenetSelector.onchange = () => { 
     ioState.brush.currentElement = int(currentElmenetSelector.value)
   }

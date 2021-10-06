@@ -202,7 +202,7 @@ var initializeUi = function () {
     controlsDiv.append(brushSizeLegend);
     controlsDiv.append(brushSizeSlider);
     var currentElmenetSelector = document.createElement('select');
-    currentElmenetSelector.innerHTML = gs.elements[0][0].reduce(function (acc, e, i) { return acc + ("<option value=\"" + i + "\">" + i + "</option>"); }, "");
+    currentElmenetSelector.innerHTML = elementProps.reduce(function (acc, e, i) { return acc + ("<option value=\"" + i + "\">" + e.name + "</option>"); }, "");
     currentElmenetSelector.onchange = function () {
         ioState.brush.currentElement = int(currentElmenetSelector.value);
     };
