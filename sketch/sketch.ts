@@ -21,7 +21,7 @@ const setup = () => {
   gs = initialize()
   initializeUi()
   elementTexture = createImage(gw, gh * heightMultiplier)
-  makeTexture(gs, elementTexture)
+  makeTexture(elementTexture)
   console.log("STARTING SETUP GridSize:", gw, gh, "Texture multiplier:", heightMultiplier, "Texture size:", elementTexture.width, elementTexture.height)
   console.log("Starting gamestate:", gs)
   createCanvas(w, h, WEBGL);
@@ -29,9 +29,9 @@ const setup = () => {
 }
 
 function draw() {
-  gs = update(gs)
+  update()
   doIO()
-  makeTexture(gs, elementTexture)
+  makeTexture(elementTexture)
   
   shader(texcoordShader);
   texcoordShader.setUniform('size', [gw, gh*heightMultiplier])
@@ -47,7 +47,7 @@ function draw() {
   rect(0,0,w,h);
 }
 
-const makeTexture = (gs: GameState, tex: p5.Image) => {
+const makeTexture = (tex: p5.Image) => {
   tex.loadPixels()
   for (let i = 0; i < gh; i++) {
     for (let j = 0; j < gw; j++) {

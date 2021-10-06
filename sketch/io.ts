@@ -1,5 +1,3 @@
-
-
 type IOState = {
   mouse: MouseState,
   lastMouse: MouseState,

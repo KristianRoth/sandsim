@@ -22,24 +22,12 @@ const initialize = () => {
   return gs
 }
 
-const update = (gs: GameState) => {
+const update = () => {
   for (let i = 0; i < gw; i++) {
     for (let j = gh - 1; j >= 0; j--) {
-      for (let x = -1; x <= 1; x += 2) {
-        if (j + x < gh && j + x >= 0) {
-          let balanced = balance(gs.elements[i][j+x], gs.elements[i][j], (x === 1) ? ioState.gameParams.gravity/200+0.5 : 0.5)
-          gs.elements[i][j+x]= balanced.first
-          gs.elements[i][j] = balanced.second
-        }
-        if (i + x < gw && i + x >= 0) {
-          let balanced = balance(gs.elements[i+x][j], gs.elements[i][j])
-          gs.elements[i+x][j]= balanced.first
-          gs.elements[i][j] = balanced.second
-        }
-      }
+      doCell(i, j)
     }
   }
-  return gs
 }
 
 const balance = (src: number[], dest: number[], balance: number = 0.5 ) => {
@@ -50,3 +38,25 @@ const balance = (src: number[], dest: number[], balance: number = 0.5 ) => {
   })
 }
 
+const doCell = (i: number, j: number) => {
+  let tempature = gs.tempature[i][j]
+  let elements = gs.elements[i][j]
+  let gasses = []
+  let gassesSum = 0
+  let liquids = []
+  let liquidsSum = 0
+  let dusts = []
+  let dustsSum = 0
+  elements.forEach((element, idx) => {
+    if (tempature > elementProps[idx].boilingPoint) {
+      gasses.push(idx)
+      gassesSum += element
+    } else if (tempature > elementProps[idx].freezingPoint) {
+      liquids.push(idx)
+      liquidsSum += element
+    } else {
+      dusts.push(idx)
+      dustsSum += element
+    }
+  })
+}

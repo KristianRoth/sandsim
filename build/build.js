@@ -101,24 +101,12 @@ var initialize = function () {
     };
     return gs;
 };
-var update = function (gs) {
+var update = function () {
     for (var i = 0; i < gw; i++) {
         for (var j = gh - 1; j >= 0; j--) {
-            for (var x = -1; x <= 1; x += 2) {
-                if (j + x < gh && j + x >= 0) {
-                    var balanced = balance(gs.elements[i][j + x], gs.elements[i][j], (x === 1) ? ioState.gameParams.gravity / 200 + 0.5 : 0.5);
-                    gs.elements[i][j + x] = balanced.first;
-                    gs.elements[i][j] = balanced.second;
-                }
-                if (i + x < gw && i + x >= 0) {
-                    var balanced = balance(gs.elements[i + x][j], gs.elements[i][j]);
-                    gs.elements[i + x][j] = balanced.first;
-                    gs.elements[i][j] = balanced.second;
-                }
-            }
+            doCell(i, j);
         }
     }
-    return gs;
 };
 var balance = function (src, dest, balance) {
     if (balance === void 0) { balance = 0.5; }
@@ -126,6 +114,30 @@ var balance = function (src, dest, balance) {
         var sum = element1 + element2;
         var av = sum * balance;
         return { first: av, second: sum - av };
+    });
+};
+var doCell = function (i, j) {
+    var tempature = gs.tempature[i][j];
+    var elements = gs.elements[i][j];
+    var gasses = [];
+    var gassesSum = 0;
+    var liquids = [];
+    var liquidsSum = 0;
+    var dusts = [];
+    var dustsSum = 0;
+    elements.forEach(function (element, idx) {
+        if (tempature > elementProps[idx].boilingPoint) {
+            gasses.push(idx);
+            gassesSum += element;
+        }
+        else if (tempature > elementProps[idx].freezingPoint) {
+            liquids.push(idx);
+            liquidsSum += element;
+        }
+        else {
+            dusts.push(idx);
+            dustsSum += element;
+        }
     });
 };
 var BrushType;
@@ -275,16 +287,16 @@ var setup = function () {
     gs = initialize();
     initializeUi();
     elementTexture = createImage(gw, gh * heightMultiplier);
-    makeTexture(gs, elementTexture);
+    makeTexture(elementTexture);
     console.log("STARTING SETUP GridSize:", gw, gh, "Texture multiplier:", heightMultiplier, "Texture size:", elementTexture.width, elementTexture.height);
     console.log("Starting gamestate:", gs);
     createCanvas(w, h, WEBGL);
     noStroke();
 };
 function draw() {
-    gs = update(gs);
+    update();
     doIO();
-    makeTexture(gs, elementTexture);
+    makeTexture(elementTexture);
     shader(texcoordShader);
     texcoordShader.setUniform('size', [gw, gh * heightMultiplier]);
     texcoordShader.setUniform('heightMultiplier', heightMultiplier);
@@ -296,7 +308,7 @@ function draw() {
     }
     rect(0, 0, w, h);
 }
-var makeTexture = function (gs, tex) {
+var makeTexture = function (tex) {
     tex.loadPixels();
     for (var i = 0; i < gh; i++) {
         for (var j = 0; j < gw; j++) {
