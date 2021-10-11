@@ -54,19 +54,19 @@ const elementProps: ElementProps[] = [
     boilingPoint: 2000,
     freezingPoint: 2000,
     color: getColor(79, 53, 14),
-    flamable: false,
+    flamable: true,
   },
   {
-    name: 'Wood',
+    name: 'Oil',
     density: {
-      gas: 0.6,
-      liquid: 400,
-      dust: 497
+      gas: 1.2,
+      liquid: 895,
+      dust: 883
     },
-    boilingPoint: 2000,
-    freezingPoint: 2000,
-    color: getColor(79, 53, 14),
-    flamable: false,
+    boilingPoint: 207,
+    freezingPoint: 42,
+    color: getColor(155, 199, 44),
+    flamable: true,
   },
   {
     name: 'Wood',

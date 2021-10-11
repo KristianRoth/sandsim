@@ -8,6 +8,7 @@ type GameState = {
   liquids: number[][][];
   dusts: number[][][];
 }
+var rand: number[]
 
 const initialize = () => {
   let elements = makeArray(0, gw, gh, elementCount) as number[][][]
@@ -38,6 +39,7 @@ const initialize = () => {
     liquids: liquids,
     dusts: dusts
   }
+  rand = Array.from(Array(gw).keys()).sort((a, b) => random() - random())
   return gs
 }
 
@@ -45,35 +47,59 @@ const update = () => {
   for (let i = 0; i < gw; i++) {
     for (let j = gh - 1; j >= 0; j--) {
       doCell(i, j)
+      gs.elements[i][j] = [0, 0, 0, 0, 0, 0, 0, 0]
     }
   }
-  gs.elements = makeArray(0, gw, gh, elementCount) as number[][][]
-  for (let i = 0; i < gw; i++) {
-    for (let j = gh - 1; j >= 0; j--) {
+  
+  for (let j = gh - 1; j >= 0; j--) {
+    for (let i = 0; i < gw; i++) {
       //balanceGasses()
       //balanceLiquids()
-      balanceDusts(i, j)
+      balanceDusts(rand[i], j)
     }
   }
 }
+const divideCellAmounts = (cellLeft: number[], toAdd: number): number[] => {
+  let down = Math.min(cellLeft[0], toAdd)
+  let leftToAdd = toAdd - down
+  let left = Math.min(cellLeft[1], leftToAdd/2)
+  let right = Math.min(cellLeft[2], leftToAdd/2)
+  let stay = leftToAdd - left - right
+  return [down, left, right, stay]
+}
 
-const divideCellAmounts = (cellLeft: number, toAdd: number): Pair<number, number> => ({first: min(cellLeft, toAdd), second: toAdd - min(cellLeft, toAdd)})
+
 
 const balanceDusts = (i: number, j: number) => {
+  let hasLeft = !(i === 0)
+  let hasRight = !(i === (gw - 1))
   if (j + 1 < gh) {
-    let cellSum = 0
+    let cellAmounts = [0, (hasLeft) ? 0 : 255 , (hasRight) ? 0 : 255]
     sortedDustDensity.forEach((elementId) => {
-      cellSum += gs.elements[i][j + 1][elementId]
-      let elementAmount = gs.dusts[i][j][elementId] + gs.dusts[i][j + 1][elementId]
-      let {first, second} = divideCellAmounts(255 - cellSum, elementAmount)
-      gs.elements[i][j+1][elementId] += first
-      gs.elements[i][j][elementId] += second
-      cellSum += elementAmount
-      //console.log(j+1, "elementAmount", elementAmount, "up:", first, "down:",  second, "startSum", gs.elements[i][j + 1][elementId])
+      cellAmounts[0] += gs.elements[i][j + 1][elementId]
+      cellAmounts[1] += (hasLeft)  ? gs.elements[i - 1][j + 1][elementId] : 0
+      cellAmounts[2] += (hasRight) ? gs.elements[i + 1][j + 1][elementId] : 0
+      let elementAmount = gs.dusts[i][j][elementId]
+      let [down, left, right, stay] = divideCellAmounts(cellAmounts.map((e) => 255-e), elementAmount)
+      if (j === 3 && elementId === 0) {
+        //console.log(i, j, "elementAmount", elementAmount, "sum:", stay + down + left + right, "down:", down, "left:", left, "right:", right, "stay:", stay, "cellamouts", cellAmounts)
+      }
+      gs.elements[i][j+1][elementId] += down
+      if (hasLeft) {
+        gs.elements[i - 1][j+1][elementId] += left
+      }
+      if (hasRight) {
+        gs.elements[i + 1][j+1][elementId] += right
+      }
+      gs.elements[i][j][elementId] += stay
+      cellAmounts[0] += down
+      cellAmounts[1] += left
+      cellAmounts[2] += right
       gs.dusts[i][j][elementId] = 0
-      gs.dusts[i][j+1][elementId] = 0
     })
 
+  } else if(j == gh - 1 ) {
+    arrayCopy(gs.dusts[i][j], gs.elements[i][j])
   }
 }
 
@@ -86,10 +112,6 @@ const balance = (src: number[], dest: number[], balance: number = 0.5 ) => {
 }
 
 const doCell = (i: number, j: number) => {
-  const insertWithDensity = (src: number[], elementId: number) => {
-    let indx = src.findIndex((e, idx) => elementProps[idx].density < elementProps[elementId].density) 
-    return src.splice(0, indx, elementId)
-  }
   let tempature = gs.tempature[i][j]
   let elements = gs.elements[i][j]
   let gasses = makeArray(0, elementCount) as number[]

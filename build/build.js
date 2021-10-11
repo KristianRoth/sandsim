@@ -36,19 +36,19 @@ var elementProps = [
         boilingPoint: 2000,
         freezingPoint: 2000,
         color: getColor(79, 53, 14),
-        flamable: false,
+        flamable: true,
     },
     {
-        name: 'Wood',
+        name: 'Oil',
         density: {
-            gas: 0.6,
-            liquid: 400,
-            dust: 497
+            gas: 1.2,
+            liquid: 895,
+            dust: 883
         },
-        boilingPoint: 2000,
-        freezingPoint: 2000,
-        color: getColor(79, 53, 14),
-        flamable: false,
+        boilingPoint: 207,
+        freezingPoint: 42,
+        color: getColor(155, 199, 44),
+        flamable: true,
     },
     {
         name: 'Wood',
@@ -108,6 +108,7 @@ var initializeElementProps = function () {
     sortedDustDensity = make1NArray(elementCount).sort(function (a, b) { return elementProps[a].density.dust - elementProps[b].density.dust; });
 };
 var elementColors = elementProps.reduce(function (acc, current) { return acc.concat(current.color); }, []);
+var rand;
 var initialize = function () {
     var elements = makeArray(0, gw, gh, elementCount);
     var tempatures = makeArray(20, gw, gh);
@@ -136,35 +137,59 @@ var initialize = function () {
         liquids: liquids,
         dusts: dusts
     };
+    rand = Array.from(Array(gw).keys()).sort(function (a, b) { return random() - random(); });
     return gs;
 };
 var update = function () {
     for (var i = 0; i < gw; i++) {
         for (var j = gh - 1; j >= 0; j--) {
             doCell(i, j);
+            gs.elements[i][j] = [0, 0, 0, 0, 0, 0, 0, 0];
         }
     }
-    gs.elements = makeArray(0, gw, gh, elementCount);
-    for (var i = 0; i < gw; i++) {
-        for (var j = gh - 1; j >= 0; j--) {
-            balanceDusts(i, j);
+    for (var j = gh - 1; j >= 0; j--) {
+        for (var i = 0; i < gw; i++) {
+            balanceDusts(rand[i], j);
         }
     }
 };
-var divideCellAmounts = function (cellLeft, toAdd) { return ({ first: min(cellLeft, toAdd), second: toAdd - min(cellLeft, toAdd) }); };
+var divideCellAmounts = function (cellLeft, toAdd) {
+    var down = Math.min(cellLeft[0], toAdd);
+    var leftToAdd = toAdd - down;
+    var left = Math.min(cellLeft[1], leftToAdd / 2);
+    var right = Math.min(cellLeft[2], leftToAdd / 2);
+    var stay = leftToAdd - left - right;
+    return [down, left, right, stay];
+};
 var balanceDusts = function (i, j) {
+    var hasLeft = !(i === 0);
+    var hasRight = !(i === (gw - 1));
     if (j + 1 < gh) {
-        var cellSum_1 = 0;
+        var cellAmounts_1 = [0, (hasLeft) ? 0 : 255, (hasRight) ? 0 : 255];
         sortedDustDensity.forEach(function (elementId) {
-            cellSum_1 += gs.elements[i][j + 1][elementId];
-            var elementAmount = gs.dusts[i][j][elementId] + gs.dusts[i][j + 1][elementId];
-            var _a = divideCellAmounts(255 - cellSum_1, elementAmount), first = _a.first, second = _a.second;
-            gs.elements[i][j + 1][elementId] += first;
-            gs.elements[i][j][elementId] += second;
-            cellSum_1 += elementAmount;
+            cellAmounts_1[0] += gs.elements[i][j + 1][elementId];
+            cellAmounts_1[1] += (hasLeft) ? gs.elements[i - 1][j + 1][elementId] : 0;
+            cellAmounts_1[2] += (hasRight) ? gs.elements[i + 1][j + 1][elementId] : 0;
+            var elementAmount = gs.dusts[i][j][elementId];
+            var _a = divideCellAmounts(cellAmounts_1.map(function (e) { return 255 - e; }), elementAmount), down = _a[0], left = _a[1], right = _a[2], stay = _a[3];
+            if (j === 3 && elementId === 0) {
+            }
+            gs.elements[i][j + 1][elementId] += down;
+            if (hasLeft) {
+                gs.elements[i - 1][j + 1][elementId] += left;
+            }
+            if (hasRight) {
+                gs.elements[i + 1][j + 1][elementId] += right;
+            }
+            gs.elements[i][j][elementId] += stay;
+            cellAmounts_1[0] += down;
+            cellAmounts_1[1] += left;
+            cellAmounts_1[2] += right;
             gs.dusts[i][j][elementId] = 0;
-            gs.dusts[i][j + 1][elementId] = 0;
         });
+    }
+    else if (j == gh - 1) {
+        arrayCopy(gs.dusts[i][j], gs.elements[i][j]);
     }
 };
 var balance = function (src, dest, balance) {
@@ -176,10 +201,6 @@ var balance = function (src, dest, balance) {
     });
 };
 var doCell = function (i, j) {
-    var insertWithDensity = function (src, elementId) {
-        var indx = src.findIndex(function (e, idx) { return elementProps[idx].density < elementProps[elementId].density; });
-        return src.splice(0, indx, elementId);
-    };
     var tempature = gs.tempature[i][j];
     var elements = gs.elements[i][j];
     var gasses = makeArray(0, elementCount);
@@ -325,7 +346,7 @@ var getSelectElement = function (title, reverse, options, updateState) {
     return selectContainer;
 };
 var texcoordShader;
-var gridSize = 10;
+var gridSize = 20;
 var w = 1000;
 var h = 1000;
 var gw = w / gridSize;

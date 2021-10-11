@@ -1,5 +1,5 @@
 let texcoordShader: p5.Shader;
-const gridSize = 10
+const gridSize = 20
 const w = 1000
 const h = 1000
 const gw = w/gridSize
@@ -34,7 +34,7 @@ const setup = () => {
 
 function draw() {
   update()
-  //console.log(gs)
+  // console.log(gs.elements)
   doIO()
   makeTexture(elementTexture)
   
