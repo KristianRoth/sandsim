@@ -55,3 +55,5 @@ const makeArray = <A>(initialValue: A, ...args: number[]) => {
   }
   return col
 }
+
+const make1NArray = (count: number) => Array.from(Array(count).keys())

@@ -1,5 +1,5 @@
 let texcoordShader: p5.Shader;
-const gridSize = 10;
+const gridSize = 10
 const w = 1000
 const h = 1000
 const gw = w/gridSize
@@ -19,17 +19,22 @@ const preload = () => {
 
 const setup = () => {
   gs = initialize()
+  console.log(gs)
   initializeUi()
+  initializeElementProps()
   elementTexture = createImage(gw, gh * heightMultiplier)
   makeTexture(elementTexture)
   console.log("STARTING SETUP GridSize:", gw, gh, "Texture multiplier:", heightMultiplier, "Texture size:", elementTexture.width, elementTexture.height)
   console.log("Starting gamestate:", gs)
   createCanvas(w, h, WEBGL);
   noStroke()
+  //frameRate(1)
+  //noLoop()
 }
 
 function draw() {
   update()
+  //console.log(gs)
   doIO()
   makeTexture(elementTexture)
   

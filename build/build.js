@@ -1,18 +1,14 @@
-var Phase;
-(function (Phase) {
-    Phase[Phase["GAS"] = 0] = "GAS";
-    Phase[Phase["LIQUID"] = 1] = "LIQUID";
-    Phase[Phase["DUST"] = 2] = "DUST";
-    Phase[Phase["SOLID"] = 3] = "SOLID";
-})(Phase || (Phase = {}));
 var getColor = function (r, g, b) {
     return [r / 255, g / 255, b / 255, 255];
 };
 var elementProps = [
     {
         name: 'Sand',
-        density: 1442,
-        phase: Phase.DUST,
+        density: {
+            gas: 70,
+            liquid: 2650,
+            dust: 1442,
+        },
         boilingPoint: 2230,
         freezingPoint: 1550,
         color: getColor(194, 178, 128),
@@ -20,8 +16,11 @@ var elementProps = [
     },
     {
         name: 'Water',
-        density: 997,
-        phase: Phase.LIQUID,
+        density: {
+            gas: 0.58966,
+            liquid: 997,
+            dust: 917,
+        },
         boilingPoint: 100,
         freezingPoint: 0,
         color: getColor(21, 61, 237),
@@ -29,63 +28,95 @@ var elementProps = [
     },
     {
         name: 'Wood',
-        density: 497,
-        phase: Phase.LIQUID,
-        boilingPoint: 100,
-        freezingPoint: 0,
+        density: {
+            gas: 0.6,
+            liquid: 400,
+            dust: 497
+        },
+        boilingPoint: 2000,
+        freezingPoint: 2000,
         color: getColor(79, 53, 14),
         flamable: false,
     },
     {
         name: 'Wood',
-        density: 497,
-        phase: Phase.LIQUID,
-        boilingPoint: 100,
-        freezingPoint: 0,
+        density: {
+            gas: 0.6,
+            liquid: 400,
+            dust: 497
+        },
+        boilingPoint: 2000,
+        freezingPoint: 2000,
         color: getColor(79, 53, 14),
         flamable: false,
     },
     {
         name: 'Wood',
-        density: 497,
-        phase: Phase.LIQUID,
-        boilingPoint: 100,
-        freezingPoint: 0,
+        density: {
+            gas: 0.6,
+            liquid: 400,
+            dust: 497
+        },
+        boilingPoint: 2000,
+        freezingPoint: 2000,
         color: getColor(79, 53, 14),
         flamable: false,
     },
     {
         name: 'Wood',
-        density: 497,
-        phase: Phase.LIQUID,
-        boilingPoint: 100,
-        freezingPoint: 0,
+        density: {
+            gas: 0.6,
+            liquid: 400,
+            dust: 497
+        },
+        boilingPoint: 2000,
+        freezingPoint: 2000,
         color: getColor(79, 53, 14),
         flamable: false,
     },
     {
         name: 'Wood',
-        density: 497,
-        phase: Phase.LIQUID,
-        boilingPoint: 100,
-        freezingPoint: 0,
+        density: {
+            gas: 0.6,
+            liquid: 400,
+            dust: 497
+        },
+        boilingPoint: 2000,
+        freezingPoint: 2000,
         color: getColor(79, 53, 14),
         flamable: false,
     },
     {
         name: 'Wood',
-        density: 497,
-        phase: Phase.LIQUID,
-        boilingPoint: 100,
-        freezingPoint: 0,
+        density: {
+            gas: 0.6,
+            liquid: 400,
+            dust: 497
+        },
+        boilingPoint: 2000,
+        freezingPoint: 2000,
         color: getColor(79, 53, 14),
         flamable: false,
     },
 ];
+var sortedGassesDensity;
+var sortedLiquidDensity;
+var sortedDustDensity;
+var initializeElementProps = function () {
+    sortedGassesDensity = make1NArray(elementCount).sort(function (a, b) { return elementProps[a].density.gas - elementProps[b].density.gas; });
+    sortedLiquidDensity = make1NArray(elementCount).sort(function (a, b) { return elementProps[a].density.liquid - elementProps[b].density.liquid; });
+    sortedDustDensity = make1NArray(elementCount).sort(function (a, b) { return elementProps[a].density.dust - elementProps[b].density.dust; });
+};
 var elementColors = elementProps.reduce(function (acc, current) { return acc.concat(current.color); }, []);
 var initialize = function () {
     var elements = makeArray(0, gw, gh, elementCount);
     var tempatures = makeArray(20, gw, gh);
+    var gassesSum = makeArray(0, gw, gh);
+    var liquidsSum = makeArray(0, gw, gh);
+    var dustsSum = makeArray(0, gw, gh);
+    var gasses = makeArray(0, gw, gh);
+    var liquids = makeArray(0, gw, gh);
+    var dusts = makeArray(0, gw, gh);
     for (var i = 0; i < gw; i++) {
         for (var j = 0; j < gh; j++) {
             elements[i][j][0] = (i === j || i === gw - j) ? 255 : 0;
@@ -97,7 +128,13 @@ var initialize = function () {
     }
     gs = {
         elements: elements,
-        tempature: tempatures
+        tempature: tempatures,
+        gassesSum: gassesSum,
+        liquidsSum: liquidsSum,
+        dustsSum: dustsSum,
+        gasses: gasses,
+        liquids: liquids,
+        dusts: dusts
     };
     return gs;
 };
@@ -106,6 +143,28 @@ var update = function () {
         for (var j = gh - 1; j >= 0; j--) {
             doCell(i, j);
         }
+    }
+    gs.elements = makeArray(0, gw, gh, elementCount);
+    for (var i = 0; i < gw; i++) {
+        for (var j = gh - 1; j >= 0; j--) {
+            balanceDusts(i, j);
+        }
+    }
+};
+var divideCellAmounts = function (cellLeft, toAdd) { return ({ first: min(cellLeft, toAdd), second: toAdd - min(cellLeft, toAdd) }); };
+var balanceDusts = function (i, j) {
+    if (j + 1 < gh) {
+        var cellSum_1 = 0;
+        sortedDustDensity.forEach(function (elementId) {
+            cellSum_1 += gs.elements[i][j + 1][elementId];
+            var elementAmount = gs.dusts[i][j][elementId] + gs.dusts[i][j + 1][elementId];
+            var _a = divideCellAmounts(255 - cellSum_1, elementAmount), first = _a.first, second = _a.second;
+            gs.elements[i][j + 1][elementId] += first;
+            gs.elements[i][j][elementId] += second;
+            cellSum_1 += elementAmount;
+            gs.dusts[i][j][elementId] = 0;
+            gs.dusts[i][j + 1][elementId] = 0;
+        });
     }
 };
 var balance = function (src, dest, balance) {
@@ -117,28 +176,38 @@ var balance = function (src, dest, balance) {
     });
 };
 var doCell = function (i, j) {
+    var insertWithDensity = function (src, elementId) {
+        var indx = src.findIndex(function (e, idx) { return elementProps[idx].density < elementProps[elementId].density; });
+        return src.splice(0, indx, elementId);
+    };
     var tempature = gs.tempature[i][j];
     var elements = gs.elements[i][j];
-    var gasses = [];
+    var gasses = makeArray(0, elementCount);
     var gassesSum = 0;
-    var liquids = [];
+    var liquids = makeArray(0, elementCount);
     var liquidsSum = 0;
-    var dusts = [];
+    var dusts = makeArray(0, elementCount);
     var dustsSum = 0;
     elements.forEach(function (element, idx) {
         if (tempature > elementProps[idx].boilingPoint) {
-            gasses.push(idx);
+            gasses[idx] = element;
             gassesSum += element;
         }
         else if (tempature > elementProps[idx].freezingPoint) {
-            liquids.push(idx);
+            liquids[idx] = element;
             liquidsSum += element;
         }
         else {
-            dusts.push(idx);
+            dusts[idx] = element;
             dustsSum += element;
         }
     });
+    gs.gasses[i][j] = gasses;
+    gs.gassesSum[i][j] = gassesSum;
+    gs.liquids[i][j] = liquids;
+    gs.liquidsSum[i][j] = liquidsSum;
+    gs.dusts[i][j] = dusts;
+    gs.dustsSum[i][j] = dustsSum;
 };
 var BrushType;
 (function (BrushType) {
@@ -271,7 +340,9 @@ var preload = function () {
 };
 var setup = function () {
     gs = initialize();
+    console.log(gs);
     initializeUi();
+    initializeElementProps();
     elementTexture = createImage(gw, gh * heightMultiplier);
     makeTexture(elementTexture);
     console.log("STARTING SETUP GridSize:", gw, gh, "Texture multiplier:", heightMultiplier, "Texture size:", elementTexture.width, elementTexture.height);
@@ -376,4 +447,5 @@ var makeArray = function (initialValue) {
     }
     return col;
 };
+var make1NArray = function (count) { return Array.from(Array(count).keys()); };
 //# sourceMappingURL=build.js.map

@@ -1,4 +1,4 @@
-precision highp float;
+precision mediump float;
 
 #define elementCount 8
 // this is the same variable we declared in the vertex shader
